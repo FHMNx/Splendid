@@ -35,8 +35,8 @@ const Footer = () => {
 
   return (
     <footer className="relative mt-5 overflow-hidden bg-gray-950 text-green-800">
-<div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,197,94,0.22),transparent_35%),radial-gradient(circle_at_top_right,rgba(16,185,129,0.12),transparent_28%),linear-gradient(to_bottom_right,rgba(255,255,255,0.03),transparent_40%)]" />      <div className="absolute left-1/2 top-0 h-40 w-40 -translate-x-1/2 rounded-full bg-green-500/10 blur-3xl" />
-
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,197,94,0.22),transparent_35%),radial-gradient(circle_at_top_right,rgba(16,185,129,0.12),transparent_28%),linear-gradient(to_bottom_right,rgba(255,255,255,0.03),transparent_40%)]" />{" "}
+      <div className="absolute left-1/2 top-0 h-40 w-40 -translate-x-1/2 rounded-full bg-green-500/10 blur-3xl" />
       <div className="relative mx-auto max-w-7xl px-4 py-4">
         <div className=" shadow-2xl shadow-black/20 backdrop-blur-xl md:p-10">
           <div className="grid gap-10 md:grid-cols-[1.3fr_0.8fr_0.9fr]">

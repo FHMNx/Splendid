@@ -53,9 +53,10 @@ function Home() {
       <Navbar />
 
       {/* HERO */}
-<section className="relative overflow-hidden bg-linear-to-br from-emerald-50 via-white to-lime-50 py-16 md:py-20">        <div className="absolute left-10 top-8 h-28 w-28 rounded-full bg-emerald-300/20 blur-3xl" />
+      <section className="relative overflow-hidden bg-linear-to-br from-emerald-50 via-white to-lime-50 py-16 md:py-20">
+        {" "}
+        <div className="absolute left-10 top-8 h-28 w-28 rounded-full bg-emerald-300/20 blur-3xl" />
         <div className="absolute right-0 top-24 h-40 w-40 rounded-full bg-lime-300/20 blur-3xl" />
-
         <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-4 md:grid-cols-2">
           <div className="text-center md:text-left">
             <div className="inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-white px-4 py-2 text-sm text-emerald-700 shadow-sm">
