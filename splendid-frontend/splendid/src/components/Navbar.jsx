@@ -26,7 +26,7 @@ const Navbar = () => {
         <div className="hidden md:flex items-center gap-3">
           {!isAuthenticated && (
             <>
-              <Link to="/register" className="flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
+              <Link to="/register" className="flex items-center gap-2 bg-green-800 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
                 <User size={18} />
                 Register
               </Link>
@@ -49,7 +49,7 @@ const Navbar = () => {
     menuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
   }`}
 >
-  <div className="flex flex-col p-4 gap-2 bg-white shadow-md shadow-sm">
+  <div className="flex flex-col p-4 gap-2 bg-white shadow-md">
     
     {/* Links */}
     {[
@@ -74,7 +74,7 @@ const Navbar = () => {
         <Link
           to="/register"
           onClick={() => setMenuOpen(false)}
-          className="px-4 py-2 rounded-lg bg-green-600 text-white text-center hover:bg-green-700 transition">
+          className="px-4 py-2 rounded-lg bg-green-800 text-white text-center hover:bg-green-700 transition">
           Register
         </Link>
 
