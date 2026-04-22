@@ -7,6 +7,10 @@ import {
   ArrowRight,
   BarChart3,
   CheckCircle2,
+  Clock3,
+  Mail,
+  MapPin,
+  Phone,
   Quote,
   Shield,
   Sparkles,
@@ -353,6 +357,133 @@ function Home() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* CONTACT US */}
+      <section className="relative overflow-hidden bg-gray-200 py-16 text-green-800">
+        <div className="relative mx-auto grid max-w-6xl gap-8 px-4 lg:grid-cols-[1.05fr_0.95fr]">
+          <div className="rounded-3xl border border-green-200 bg-white p-6 shadow-xl sm:p-8">
+            <p className="inline-flex rounded-full border border-green-200 bg-green-50 px-4 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-green-800">
+              Contact us
+            </p>
+            <h2 className="mt-4 text-3xl font-bold md:text-4xl">
+              Let&apos;s build better money habits together
+            </h2>
+            <p className="mt-3 max-w-xl text-sm leading-7 text-green-700 md:text-base">
+              Have questions about features, onboarding, or support? Send us a
+              message and our team will get back to you quickly.
+            </p>
+
+            <form className="mt-8 grid gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-1">
+                <label className="mb-1 block text-sm text-green-700">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="Your full name"
+                  className="w-full rounded-xl border border-green-600 bg-white/90 px-4 py-3 text-slate-800 outline-none transition focus:border-green-800 focus:ring-2 focus:ring-green-600/60"
+                />
+              </div>
+
+              <div className="sm:col-span-1">
+                <label className="mb-1 block text-sm text-green-700">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  placeholder="you@example.com"
+                  className="w-full rounded-xl border border-green-600 bg-white/90 px-4 py-3 text-slate-800 outline-none transition focus:border-green-800 focus:ring-2 focus:ring-green-600/60"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="mb-1 block text-sm text-green-700">
+                  Subject
+                </label>
+                <input
+                  type="text"
+                  placeholder="How can we help?"
+                  className="w-full rounded-xl border border-green-600 bg-white/90 px-4 py-3 text-slate-800 outline-none transition focus:border-green-800 focus:ring-2 focus:ring-green-600/60"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="mb-1 block text-sm text-green-700">
+                  Message
+                </label>
+                <textarea
+                  rows={5}
+                  placeholder="Tell us what you need..."
+                  className="w-full resize-none rounded-xl border border-green-600 bg-white/90 px-4 py-3 text-slate-800 outline-none transition focus:border-green-800 focus:ring-2 focus:ring-green-600/60"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <button
+                  type="button"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-green-800 px-6 py-3 font-semibold text-white transition hover:bg-green-700"
+                >
+                  Send Message <ArrowRight size={18} />
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <aside className="grid gap-4 self-start">
+            <div className="rounded-3xl border border-green-200 bg-white p-6 shadow-xl">
+              <h3 className="text-xl font-semibold">We&apos;re Here To Help</h3>
+              <p className="mt-2 text-sm leading-7 text-green-700">
+                Reach out for onboarding help, feature guidance, or partnership
+                opportunities. We respond in under one business day.
+              </p>
+            </div>
+
+            <div className="space-y-3 rounded-3xl border border-green-200 bg-white p-6 shadow-xl">
+              <div className="flex items-start gap-3">
+                <Mail size={18} className="mt-1 text-green-700" />
+                <div>
+                  <p className="text-xs uppercase tracking-[0.2em] text-green-800 font-bold">
+                    Email
+                  </p>
+                  <p className="text-sm text-green-800">support@splendid.app</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <Phone size={18} className="mt-1 text-green-700" />
+                <div>
+                  <p className="text-xs uppercase tracking-[0.2em] text-green-800 font-bold">
+                    Phone
+                  </p>
+                  <p className="text-sm text-green-800">+94 75 383 7635</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <MapPin size={18} className="mt-1 text-green-700" />
+                <div>
+                  <p className="text-xs uppercase tracking-[0.2em] text-green-800 font-bold">
+                    Office
+                  </p>
+                  <p className="text-sm text-green-800">Kandy 07, Sri Lanka</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <Clock3 size={18} className="mt-1 text-green-700" />
+                <div>
+                  <p className="text-xs uppercase tracking-[0.2em]  text-green-800 font-bold">
+                    Hours
+                  </p>
+                  <p className="text-sm text-green-800">
+                    Mon - Fri, 9:00 AM - 6:00 PM
+                  </p>
+                </div>
+              </div>
+            </div>
+          </aside>
         </div>
       </section>
 
