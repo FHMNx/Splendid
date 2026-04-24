@@ -5,36 +5,22 @@ import { useState } from "react";
 import logo from "../assets/splendid.png";
 
 const Register = () => {
-  const [preview, setPreview] = useState("");
   const [user, setUser] = useState({
-    username: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
   });
 
-  const { username, email, password } = user;
-
-  const [avatar, setAvatar] = useState("");
+  const { firstName, lastName, email, password } = user;
 
   const handleChange = (e) => {
-    if (e.target.name === "profileImage") {
-      const reader = new FileReader();
-
-      reader.onload = () => {
-        if (reader.readyState === 2) {
-          setPreview(reader.result);
-          setAvatar(reader.result);
-        }
-      };
-      reader.readAsDataURL(e.target.files[0]);
-    } else {
-      setUser((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    }
+    setUser((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const registerNow = (e) => {
     e.preventDefault();
-    if (!username || !email || !password || !avatar) {
+    if (!firstName || !lastName || !email || !password) {
       alert("Please fill all the fields");
       return;
     }
@@ -54,11 +40,7 @@ const Register = () => {
         <div className="pointer-events-none absolute -left-16 top-10 h-40 w-40 rounded-full bg-emerald-200/30 blur-3xl" />
         <div className="pointer-events-none absolute -right-20 bottom-10 h-48 w-48 rounded-full bg-lime-200/30 blur-3xl" />
         <div className="w-full max-w-md bg-white rounded-2xl border border-green-100 shadow-xl p-8">
-          <form
-            className="space-y-6"
-            encType="multipart/form-data"
-            onSubmit={registerNow}
-          >
+          <form className="space-y-6" onSubmit={registerNow}>
             <div className="text-center">
               <h2 className="text-3xl font-bold text-green-800">
                 Create an Account
@@ -73,16 +55,32 @@ const Register = () => {
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="text-sm text-green-800 ml-1">Username</label>
-              <input
-                type="text"
-                value={username}
-                name="username"
-                onChange={handleChange}
-                placeholder="Enter your username"
-                className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-600 focus:border-transparent outline-none transition-all mt-1"
-              />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-1">
+                <label className="text-sm text-green-800 ml-1">
+                  First Name
+                </label>
+                <input
+                  type="text"
+                  value={firstName}
+                  name="firstName"
+                  onChange={handleChange}
+                  placeholder="Enter your first name"
+                  className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-600 focus:border-transparent outline-none transition-all mt-1"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-sm text-green-800 ml-1">Last Name</label>
+                <input
+                  type="text"
+                  value={lastName}
+                  name="lastName"
+                  onChange={handleChange}
+                  placeholder="Enter your last name"
+                  className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-600 focus:border-transparent outline-none transition-all mt-1"
+                />
+              </div>
             </div>
 
             <div className="space-y-1">
@@ -107,27 +105,6 @@ const Register = () => {
                 placeholder="Enter your password"
                 className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-600 focus:border-transparent outline-none transition-all mt-1"
               />
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <div className="shrink-0">
-                <img
-                  src={preview || logo}
-                  alt={preview ? "Avatar preview" : "Splendid logo"}
-                  id="preview"
-                  className="h-12 w-12 rounded-sm bg-gray-100 object-cover"
-                />
-              </div>
-              <label className="block text-sm text-green-800 cursor-pointer">
-                <span className="sr-only">choose profile image</span>
-                <input
-                  type="file"
-                  name="profileImage"
-                  accept="image/*"
-                  onChange={handleChange}
-                  className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:bg-green-50 file:text-green-800 font-semibold hover:file:bg-green-100 transition-all"
-                />
-              </label>
             </div>
 
             <button className="w-full bg-green-800 hover:bg-green-700 text-white font-semibold py-3 rounded-2xl shadow-lg shadow-gray-400 transition-all active:scale-[0.98]">
