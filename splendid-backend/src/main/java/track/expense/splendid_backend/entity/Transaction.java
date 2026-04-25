@@ -43,7 +43,10 @@ public class Transaction {
     private String notes;
 
     private Long categoryId;
-    private Long userId;
+
+    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User user;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
