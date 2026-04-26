@@ -26,7 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .authorities(Collections.singletonList(
                         new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
                 ))
-                .disabled(!user.isEnabled())
+                .disabled(!user.isVerified())
                 .build();
     }
 }

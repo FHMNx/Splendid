@@ -7,4 +7,6 @@ import track.expense.splendid_backend.dto.RegisterRequestDto;
 public interface UserService {
     void register(RegisterRequestDto request);
     AuthResponseDto login(LoginRequestDto request);
+    void requestPasswordReset(String email);
+    void resetPassword(String token, String newPassword);
 }

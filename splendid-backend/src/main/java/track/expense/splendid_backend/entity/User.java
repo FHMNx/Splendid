@@ -30,10 +30,15 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Column(nullable = false)
-    private boolean enabled = false;   // email verification
+    @Column(name = "is_verified")
+    private boolean isVerified = false;  // email verification
 
+    @Column(name = "verification_token")
     private String verificationToken;
+
+    @Column(name = "token_expiry")
+    private LocalDateTime tokenExpiry;
+
     private String resetPasswordToken;
     private LocalDateTime resetPasswordExpiry;
 
@@ -44,6 +49,7 @@ public class User {
     @PrePersist
     public void onCreate(){
         this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
