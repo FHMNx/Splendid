@@ -1,5 +1,6 @@
 package track.expense.splendid_backend.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,7 @@ public class AuthController {
     private final EmailService emailService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterRequestDto request) {
+    public ResponseEntity<String> register(@Valid @RequestBody RegisterRequestDto request) {
         userService.register(request);
         return ResponseEntity.ok("Registration successful. Please check your email to verify your account.");
     }

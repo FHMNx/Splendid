@@ -12,6 +12,10 @@ import Transactions from "./pages/Transactions";
 import Profile from "./pages/Profile";
 import TransactionForm from "./pages/TransactionForm";
 import EditTransactionModal from "./components/transactions/EditTransactionModal";
+import { ToastContainer, Slide } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
 
 const App = () => {
   return (
@@ -23,6 +27,8 @@ const App = () => {
         <Route path="/contact-us" element={<Contact />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* Dashboard */}
         <Route path="/dashboard" element={<DashboardLayout />}>
@@ -37,6 +43,18 @@ const App = () => {
           <Route path="profile" element={<Profile />} />
         </Route>
       </Routes>
+
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        draggable
+        theme="colored"
+        transition={Slide}
+      />
     </BrowserRouter>
   );
 };

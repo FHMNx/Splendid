@@ -3,6 +3,9 @@ import { Link } from "react-router-dom";
 import PageTitle from "../components/PageTitle";
 import { useState } from "react";
 import logo from "../assets/splendid.png";
+import { toast } from "react-toastify";
+import { registerUser } from "../api/authApi";
+import { useNavigate } from "react-router-dom";
 
 const Register = () => {
   const [user, setUser] = useState({
@@ -14,15 +17,45 @@ const Register = () => {
 
   const { firstName, lastName, email, password } = user;
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const passwordRegex = /^.{6,}$/;
+
   const handleChange = (e) => {
     setUser((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const registerNow = (e) => {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
+  const registerNow = async (e) => {
     e.preventDefault();
+
     if (!firstName || !lastName || !email || !password) {
-      alert("Please fill all the fields");
+      toast.error("Please fill all fields");
       return;
+    }
+
+    if (!emailRegex.test(email)) {
+      toast.error("Invalid email format");
+      return;
+    }
+
+    if (!passwordRegex.test(password)) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await registerUser(user);
+      toast.success("Registration successful! Please check your email.");
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
+    } catch (error) {
+      // Error is handled by interceptor
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -107,8 +140,11 @@ const Register = () => {
               />
             </div>
 
-            <button className="w-full bg-green-800 hover:bg-green-700 text-white font-semibold py-3 rounded-2xl shadow-lg shadow-gray-400 transition-all active:scale-[0.98]">
-              Register
+            <button
+              disabled={loading}
+              className="w-full bg-green-800 hover:bg-green-700 text-white font-semibold py-3 rounded-2xl shadow-lg shadow-gray-400 transition-all active:scale-[0.98] disabled:opacity-50"
+            >
+              {loading ? "Registering..." : "Register"}
             </button>
 
             <p className="text-sm text-center text-green-700">

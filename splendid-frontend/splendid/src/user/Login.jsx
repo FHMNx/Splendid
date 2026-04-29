@@ -2,16 +2,39 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import PageTitle from "../components/PageTitle";
 import logo from "../assets/splendid.png";
+import { toast } from "react-toastify";
+import { loginUser } from "../api/authApi";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
 
-  const handleLogin = (e) => {
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
     e.preventDefault();
 
     if (!email || !password) {
-      alert("Please fill all the fields");
+      toast.error("Please fill all fields");
+      return;
+    }
+
+    try {
+      const { data } = await loginUser({ email, password });
+
+      if (rememberMe) {
+        localStorage.setItem("token", data.token);
+      } else {
+        sessionStorage.setItem("token", data.token);
+      }
+
+      localStorage.setItem("user", JSON.stringify(data));
+      toast.success("Login successful!");
+
+      navigate("/dashboard");
+    } finally {
     }
   };
 
@@ -70,16 +93,18 @@ const Login = () => {
               <label className="inline-flex items-center gap-2 text-green-800 cursor-pointer select-none text-sm">
                 <input
                   type="checkbox"
+                  checked={rememberMe}
+                  onChange={() => setRememberMe(!rememberMe)}
                   className="h-4 w-4 rounded border-gray-300 text-green-700 focus:ring-green-600"
                 />
                 Remember me
               </label>
-              <a
-                href="#"
+              <Link
+                to="/forgot-password"
                 className="text-blue-800 font-semibold hover:underline text-sm"
               >
                 Forgot password?
-              </a>
+              </Link>
             </div>
 
             <button
