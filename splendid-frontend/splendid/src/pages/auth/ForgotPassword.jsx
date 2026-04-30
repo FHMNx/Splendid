@@ -17,12 +17,18 @@ const ForgotPassword = () => {
       return;
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Invalid email format");
+      return;
+    }
+
     setLoading(true);
 
     try {
       await forgotPassword(email);
       toast.success(
-        "password reset link sent! Please check your email (and spam folder)",
+        "If this email is registered, you'll receive a reset link shortly",
       );
       setEmail("");
     } finally {

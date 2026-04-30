@@ -1,32 +1,61 @@
 package track.expense.splendid_backend.exception;
+  import org.springframework.http.HttpStatus;
+  import org.springframework.http.ResponseEntity;
+  import org.springframework.web.bind.MethodArgumentNotValidException;
+  import org.springframework.web.bind.annotation.ExceptionHandler;
+  import org.springframework.web.bind.annotation.RestControllerAdvice;
+  import track.expense.splendid_backend.dto.ErrorResponse;
+  import java.time.LocalDateTime;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.*;
+  @RestControllerAdvice
+  public class GlobalExceptionHandler {
 
-@RestControllerAdvice
-public class GlobalExceptionHandler {
+      private ResponseEntity<ErrorResponse> build(String message, HttpStatus status) {
+          return ResponseEntity.status(status).body(
+              ErrorResponse.builder()
+                  .message(message)
+                  .status(status.value())
+                  .timestamp(LocalDateTime.now())
+                  .build()
+          );
+      }
 
-    // DTO validation errors
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<String> handleValidation(MethodArgumentNotValidException ex) {
+      @ExceptionHandler(UserNotFoundException.class)
+      public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException ex) {
+          return build(ex.getMessage(), HttpStatus.NOT_FOUND);
+      }
 
-        String error = ex.getBindingResult()
-                .getFieldErrors()
-                .get(0)
-                .getDefaultMessage();
-        return ResponseEntity.badRequest().body(error);
-    }
+      @ExceptionHandler(InvalidTokenException.class)
+      public ResponseEntity<ErrorResponse> handleInvalidToken(InvalidTokenException ex) {
+          return build(ex.getMessage(), HttpStatus.BAD_REQUEST);
+      }
 
-    // Custom exception
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<String> handleNotFound(ResourceNotFoundException ex) {
-        return ResponseEntity.status(404).body(ex.getMessage());
-    }
+      @ExceptionHandler(EmailAlreadyExistsException.class)
+      public ResponseEntity<ErrorResponse> handleEmailExists(EmailAlreadyExistsException ex) {
+          return build(ex.getMessage(), HttpStatus.CONFLICT);
+      }
 
-    // General fallback
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleGeneral(Exception ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
-    }
-}
+      @ExceptionHandler(EmailNotVerifiedException.class)
+      public ResponseEntity<ErrorResponse> handleEmailNotVerified(EmailNotVerifiedException ex) {
+          return build(ex.getMessage(), HttpStatus.FORBIDDEN);
+      }
+
+      @ExceptionHandler(MethodArgumentNotValidException.class)
+      public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
+          String message = ex.getBindingResult().getFieldErrors().stream()
+              .map(e -> e.getField() + ": " + e.getDefaultMessage())
+              .findFirst()
+              .orElse("Validation failed");
+          return build(message, HttpStatus.BAD_REQUEST);
+      }
+
+      @ExceptionHandler(RuntimeException.class)
+      public ResponseEntity<ErrorResponse> handleRuntime(RuntimeException ex) {
+          return build(ex.getMessage(), HttpStatus.BAD_REQUEST);
+      }
+
+      @ExceptionHandler(Exception.class)
+      public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
+          return build("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+  }

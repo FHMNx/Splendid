@@ -5,11 +5,13 @@ import logo from "../assets/splendid.png";
 import { toast } from "react-toastify";
 import { loginUser } from "../api/authApi";
 import { useNavigate } from "react-router-dom";
+import { setToken, setUser } from "../utils/auth";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -22,19 +24,14 @@ const Login = () => {
     }
 
     try {
+      setLoading(true);
       const { data } = await loginUser({ email, password });
-
-      if (rememberMe) {
-        localStorage.setItem("token", data.token);
-      } else {
-        sessionStorage.setItem("token", data.token);
-      }
-
-      localStorage.setItem("user", JSON.stringify(data));
+      setToken(data.token, rememberMe);
+      setUser(data);
       toast.success("Login successful!");
-
       navigate("/dashboard");
     } finally {
+      setLoading(false);
     }
   };
 
@@ -139,9 +136,10 @@ const Login = () => {
 
             <button
               type="submit"
-              className="w-full bg-green-800 hover:bg-green-700 text-white font-semibold py-3 rounded-2xl shadow-lg shadow-gray-400 transition-all active:scale-[0.98]"
+              disabled={loading}
+              className="w-full bg-green-800 hover:bg-green-700 text-white font-semibold py-3 rounded-2xl shadow-lg shadow-gray-400 transition-all active:scale-[0.98] disabled:opacity-50"
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </button>
 
             <p className="text-sm text-center text-green-700">

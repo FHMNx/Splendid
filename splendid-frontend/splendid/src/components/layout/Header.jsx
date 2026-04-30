@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Bell,
   ChevronDown,
@@ -8,6 +9,7 @@ import {
   User,
 } from "lucide-react";
 import splendidLogo from "../../assets/splendid.png";
+import { clearAuth } from "../../utils/auth";
 
 const Header = ({
   title = "Splendid",
@@ -17,6 +19,12 @@ const Header = ({
 }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef(null);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    clearAuth();
+    navigate("/login");
+  };
 
   useEffect(() => {
     const handleOutsideClick = (event) => {
@@ -151,6 +159,7 @@ const Header = ({
               </a>
               <button
                 type="button"
+                onClick={handleLogout}
                 className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-zinc-700 transition-colors duration-150 hover:bg-emerald-50 hover:text-emerald-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                 role="menuitem"
               >

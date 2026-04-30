@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import PageTitle from "../components/PageTitle";
 import {
   Camera,
@@ -10,6 +11,7 @@ import {
   ArrowDownRight,
   ReceiptText,
 } from "lucide-react";
+import { clearAuth } from "../utils/auth";
 
 const ACCOUNT_STATS = [
   {
@@ -31,6 +33,13 @@ const ACCOUNT_STATS = [
 
 const Profile = () => {
   const fileInputRef = useRef(null);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    clearAuth();
+    navigate("/login");
+  };
+
   const [profileImage, setProfileImage] = useState(
     "https://i.pravatar.cc/200?img=12",
   );
@@ -337,6 +346,7 @@ const Profile = () => {
                   </p>
                   <button
                     type="button"
+                    onClick={handleLogout}
                     className="mt-4 inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-red-500"
                   >
                     Logout

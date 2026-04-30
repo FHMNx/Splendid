@@ -1,20 +1,27 @@
 package track.expense.splendid_backend.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import track.expense.splendid_backend.dto.AuthResponseDto;
 import track.expense.splendid_backend.dto.LoginRequestDto;
 import track.expense.splendid_backend.dto.RegisterRequestDto;
 import track.expense.splendid_backend.entity.User;
+import track.expense.splendid_backend.exception.EmailAlreadyExistsException;
+import track.expense.splendid_backend.exception.EmailNotVerifiedException;
+import track.expense.splendid_backend.exception.InvalidTokenException;
+import track.expense.splendid_backend.exception.UserNotFoundException;
 import track.expense.splendid_backend.repository.UserRepository;
 import track.expense.splendid_backend.service.EmailService;
 import track.expense.splendid_backend.service.UserService;
 import track.expense.splendid_backend.security.jwt.JwtService;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -28,7 +35,7 @@ public class UserServiceImpl implements UserService {
     public void register(RegisterRequestDto request) {
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("Email already registered");
+            throw new EmailAlreadyExistsException("Email already registered");
         }
 
         String token = UUID.randomUUID().toString();
@@ -45,6 +52,7 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         userRepository.save(user);
+        log.info("New user registered: {}", request.getEmail());
 
         emailService.sendVerificationEmail(
                 user.getEmail(),
@@ -55,23 +63,26 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public AuthResponseDto login(LoginRequestDto request) {
-        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new RuntimeException("Invalid email or password"));
+        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new UserNotFoundException("Invalid email or password"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid Email or password");
+            throw new UserNotFoundException("Invalid email or password");
         }
 
         if (!user.isVerified()) {
-            throw new RuntimeException("Please verify your email first");
+            throw new EmailNotVerifiedException("Please verify your email first");
         }
 
-        String token = jwtService.generateToken(user.getEmail());
+        String token = jwtService.generateToken(user);
+        log.info("User logged in: {}", request.getEmail());
 
         return AuthResponseDto.builder()
                 .token(token)
+                .id(user.getId())
                 .email(user.getEmail())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
+                .role(user.getRole().name())
                 .build();
 
     }
@@ -79,8 +90,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public void requestPasswordReset(String email) {
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isEmpty()) {
+            return;
+        }
+        User user = userOptional.get();
 
         String token = UUID.randomUUID().toString();
 
@@ -88,6 +102,7 @@ public class UserServiceImpl implements UserService {
         user.setResetPasswordExpiry(LocalDateTime.now().plusMinutes(15));
 
         userRepository.save(user);
+        log.info("Password reset requested for: {}", email);
 
         emailService.sendPasswordResetEmail(
                 user.getEmail(),
@@ -100,12 +115,12 @@ public class UserServiceImpl implements UserService {
     public void resetPassword(String token, String newPassword) {
 
         User user = userRepository.findByResetPasswordToken(token)
-                .orElseThrow(() -> new RuntimeException("Invalid reset token"));
+                .orElseThrow(() -> new InvalidTokenException("Invalid reset token"));
 
         if (user.getResetPasswordExpiry() == null ||
                 user.getResetPasswordExpiry().isBefore(LocalDateTime.now())) {
 
-            throw new RuntimeException("Reset token expired");
+            throw new InvalidTokenException("Reset token expired");
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));
@@ -113,5 +128,6 @@ public class UserServiceImpl implements UserService {
         user.setResetPasswordExpiry(null);
 
         userRepository.save(user);
+        log.info("Password reset completed");
     }
 }

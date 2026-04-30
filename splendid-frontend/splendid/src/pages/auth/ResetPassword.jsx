@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import api from "../../api/axiosInstance";
-import { validateResetToken } from "../../api/authApi";
+import { validateResetToken, resetPassword } from "../../api/authApi";
 import PageTitle from "../../components/PageTitle";
 import logo from "../../assets/splendid.png";
 
@@ -56,9 +55,7 @@ const ResetPassword = () => {
     setSubmitting(true);
 
     try {
-      await api.post(
-        `/auth/reset-password?token=${token}&password=${password}`,
-      );
+      await resetPassword({ token, password });
 
       toast.success("Password reset successful!");
 

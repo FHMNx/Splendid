@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.*;
 import track.expense.splendid_backend.dto.AuthResponseDto;
 import track.expense.splendid_backend.dto.LoginRequestDto;
 import track.expense.splendid_backend.dto.RegisterRequestDto;
+import track.expense.splendid_backend.dto.ForgotPasswordRequestDto;
+import track.expense.splendid_backend.dto.ResendVerificationRequestDto;
+import track.expense.splendid_backend.dto.ResetPasswordRequestDto;
 import track.expense.splendid_backend.entity.User;
 import track.expense.splendid_backend.repository.UserRepository;
 import track.expense.splendid_backend.service.EmailService;
@@ -65,9 +68,9 @@ public class AuthController {
 
 
     @PostMapping("/resend-verification")
-    public ResponseEntity<String> resendVerification(@RequestParam String email) {
+    public ResponseEntity<String> resendVerification(@RequestBody @Valid ResendVerificationRequestDto request) {
 
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmail(request.getEmail())
                 .orElse(null);
 
         if (user == null) {
@@ -96,14 +99,14 @@ public class AuthController {
 
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<String> forgotPassword(@RequestParam String email) {
-        userService.requestPasswordReset(email);
+    public ResponseEntity<String> forgotPassword(@RequestBody @Valid ForgotPasswordRequestDto request) {
+        userService.requestPasswordReset(request.getEmail());
         return ResponseEntity.ok("Password reset email sent");
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestParam String token, @RequestParam String password) {
-        userService.resetPassword(token, password);
+    public ResponseEntity<String> resetPassword(@RequestBody @Valid ResetPasswordRequestDto request) {
+        userService.resetPassword(request.getToken(), request.getPassword());
         return ResponseEntity.ok("Password reset successful");
     }
 

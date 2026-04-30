@@ -49,9 +49,7 @@ const Register = () => {
       setLoading(true);
       await registerUser(user);
       toast.success("Registration successful! Please check your email.");
-      setTimeout(() => {
-        navigate("/login");
-      }, 1500);
+      navigate("/login");
     } catch (error) {
       // Error is handled by interceptor
     } finally {
