@@ -12,5 +12,4 @@ public class AuthResponseDto {
     private String email;
     private String firstName;
     private String lastName;
-
 }

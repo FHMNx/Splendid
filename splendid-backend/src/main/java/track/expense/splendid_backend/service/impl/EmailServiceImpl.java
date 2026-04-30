@@ -31,7 +31,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendVerificationEmail(String to, String name, String token) {
 
-        String verificationLink = "http://localhost:8080/api/auth/verify?token=" + token;
+        String verificationLink = "http://localhost:3000/verify?token=" + token;
 
         Context context = new Context();
         context.setVariable("name", name);
@@ -46,7 +46,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendPasswordResetEmail(String to, String name, String token) {
 
-        String resetLink = "http://localhost:8080/api/auth/reset-password?token=" + token;
+        String resetLink = "http://localhost:3000/reset-password?token=" + token;
 
         Context context = new Context();
         context.setVariable("name", name);

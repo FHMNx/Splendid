@@ -3,16 +3,11 @@ package track.expense.splendid_backend.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import track.expense.splendid_backend.dto.ApiResponse;
 import track.expense.splendid_backend.dto.AuthResponseDto;
 import track.expense.splendid_backend.dto.LoginRequestDto;
 import track.expense.splendid_backend.dto.RegisterRequestDto;
-import track.expense.splendid_backend.entity.User;
-import track.expense.splendid_backend.repository.UserRepository;
-import track.expense.splendid_backend.service.EmailService;
 import track.expense.splendid_backend.service.UserService;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -20,103 +15,83 @@ import java.util.UUID;
 public class AuthController {
 
     private final UserService userService;
-    private final UserRepository userRepository;
-    private final EmailService emailService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterRequestDto request) {
+    public ResponseEntity<ApiResponse<Void>> register(@RequestBody RegisterRequestDto request) {
         userService.register(request);
-        return ResponseEntity.ok("Registration successful. Please check your email to verify your account.");
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder()
+                        .success(true)
+                        .message("Registration successful. Please check your email to verify your account.")
+                        .build()
+        );
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDto> login(@RequestBody LoginRequestDto request) {
+    public ResponseEntity<ApiResponse<AuthResponseDto>> login(@RequestBody LoginRequestDto request) {
         AuthResponseDto response = userService.login(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(
+                ApiResponse.<AuthResponseDto>builder()
+                        .success(true)
+                        .message("Login successful")
+                        .data(response)
+                        .build()
+        );
     }
 
     @GetMapping("/verify")
-    public String verifyEmail(@RequestParam String token) {
-
-        User user = userRepository.findByVerificationToken(token).orElse(null);
-
-        if (user == null) {
-            return "Invalid verification link.";
-        }
-
-        if (user.isVerified()) {
-            return "Email already verified.";
-        }
-
-        if (user.getTokenExpiry() == null ||
-                user.getTokenExpiry().isBefore(LocalDateTime.now())) {
-            return "Verification link expired. Please request a new one.";
-        }
-
-        user.setVerified(true);
-        user.setVerificationToken(null);
-        user.setTokenExpiry(null);
-
-        userRepository.save(user);
-
-        return "Congratulations! Your email has been verified successfully";
+    public ResponseEntity<ApiResponse<String>> verifyEmail(@RequestParam String token) {
+        String message = userService.verifyEmail(token);
+        return ResponseEntity.ok(
+                ApiResponse.<String>builder()
+                        .success(true)
+                        .message(message)
+                        .build()
+        );
     }
-
 
     @PostMapping("/resend-verification")
-    public ResponseEntity<String> resendVerification(@RequestParam String email) {
-
-        User user = userRepository.findByEmail(email)
-                .orElse(null);
-
-        if (user == null) {
-            return ResponseEntity.badRequest().body("User not found");
-        }
-
-        if (user.isVerified()) {
-            return ResponseEntity.badRequest().body("Email already verified");
-        }
-
-        if (user.getTokenExpiry() != null &&
-                user.getTokenExpiry().isAfter(LocalDateTime.now().minusMinutes(2))) {
-
-            return ResponseEntity.badRequest().body("Please wait before requesting another verification email.");
-        }
-
-        String newToken = UUID.randomUUID().toString();
-
-        user.setVerificationToken(newToken);
-        user.setTokenExpiry(LocalDateTime.now().plusHours(24));
-
-        userRepository.save(user);
-        emailService.sendVerificationEmail(user.getEmail(), user.getFirstName(), newToken);
-        return ResponseEntity.ok("Verification email resent successfully");
+    public ResponseEntity<ApiResponse<String>> resendVerification(@RequestParam String email) {
+        String message = userService.resendVerification(email);
+        return ResponseEntity.ok(
+                ApiResponse.<String>builder()
+                        .success(true)
+                        .message(message)
+                        .build()
+        );
     }
 
-
     @PostMapping("/forgot-password")
-    public ResponseEntity<String> forgotPassword(@RequestParam String email) {
+    public ResponseEntity<ApiResponse<String>> forgotPassword(@RequestParam String email) {
         userService.requestPasswordReset(email);
-        return ResponseEntity.ok("Password reset email sent");
+        return ResponseEntity.ok(
+                ApiResponse.<String>builder()
+                        .success(true)
+                        .message("password reset email sent successfully")
+                        .build()
+        );
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestParam String token, @RequestParam String password) {
+    public ResponseEntity<ApiResponse<String>> resetPassword(@RequestParam String token,
+                                                             @RequestParam String password) {
         userService.resetPassword(token, password);
-        return ResponseEntity.ok("Password reset successful");
+        return ResponseEntity.ok(
+                ApiResponse.<String>builder()
+                        .success(true)
+                        .message("Password reset successful")
+                        .build()
+        );
     }
 
     @GetMapping("/validate-reset-token")
-    public ResponseEntity<String> validateResetToken(@RequestParam String token) {
-
-        User user = userRepository.findByResetPasswordToken(token)
-                .orElseThrow(() -> new RuntimeException("Invalid token"));
-
-        if (user.getResetPasswordExpiry() == null ||
-                user.getResetPasswordExpiry().isBefore(LocalDateTime.now())) {
-            return ResponseEntity.badRequest().body("Token expired");
-        }
-
-        return ResponseEntity.ok("Valid token");
+    public ResponseEntity<ApiResponse<String>> validateResetToken(@RequestParam String token) {
+        userService.validateResetToken(token);
+        return ResponseEntity.ok(
+                ApiResponse.<String>builder()
+                        .success(true)
+                        .message("Valid token")
+                        .build()
+        );
     }
 }

@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import PageTitle from "../components/PageTitle";
 import { useState } from "react";
 import logo from "../assets/splendid.png";
+import { toast } from "react-hot-toast";
+import { registerUser } from "../features/auth/authAPI";
 
 const Register = () => {
   const [user, setUser] = useState({
@@ -12,17 +14,70 @@ const Register = () => {
     password: "",
   });
 
+  const [loading, setLoading] = useState(false);
+
   const { firstName, lastName, email, password } = user;
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$#!%*?&]{8,}$/;
+
+  // CHECK PASSWORD STRENGTH
+  const getPasswordStrength = (password) => {
+    if (password.length < 8) return "Weak";
+
+    let score = 0;
+    if (/[a-z]/.test(password)) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/\d/.test(password)) score++;
+    if (/[@$!%*?&]/.test(password)) score++;
+
+    if (score <= 2) return "Weak";
+    if (score === 3) return "Medium";
+    return "Strong";
+  };
+
+  const passwordStrength = getPasswordStrength(password);
 
   const handleChange = (e) => {
     setUser((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const registerNow = (e) => {
+  const registerNow = async (e) => {
     e.preventDefault();
+
     if (!firstName || !lastName || !email || !password) {
-      alert("Please fill all the fields");
+      toast.error("Please fill all the fields");
       return;
+    }
+
+    if (!emailRegex.test(email)) {
+      toast.error("Invalid email format");
+      return;
+    }
+
+    if (!passwordRegex.test(password)) {
+      toast.error(
+        "Password must be 8+ chars, include uppercase, lowercase, and number",
+      );
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const res = await registerUser(user);
+
+      toast.success("Registration successful! Please verify your email.");
+      setUser({
+        firstName: "",
+        lastName: "",
+        email: "",
+        password: "",
+      });
+    } catch (error) {
+      toast.error("Registration failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -105,10 +160,26 @@ const Register = () => {
                 placeholder="Enter your password"
                 className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-600 focus:border-transparent outline-none transition-all mt-1"
               />
+              {password && (
+                <p
+                  className={`text-sm mt-1 font-semibold ${
+                    passwordStrength === "Weak"
+                      ? "text-red-500"
+                      : passwordStrength === "Medium"
+                        ? "text-yellow-500"
+                        : "text-green-600"
+                  }`}
+                >
+                  Strength: {passwordStrength}
+                </p>
+              )}
             </div>
 
-            <button className="w-full bg-green-800 hover:bg-green-700 text-white font-semibold py-3 rounded-2xl shadow-lg shadow-gray-400 transition-all active:scale-[0.98]">
-              Register
+            <button
+              disabled={loading}
+              className="w-full bg-green-800 hover:bg-green-700 text-white font-semibold py-3 rounded-2xl shadow-lg shadow-gray-400 transition-all active:scale-[0.98]"
+            >
+              {loading ? "Registering..." : "Register Now"}
             </button>
 
             <p className="text-sm text-center text-green-700">

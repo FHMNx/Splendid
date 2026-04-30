@@ -9,4 +9,7 @@ public interface UserService {
     AuthResponseDto login(LoginRequestDto request);
     void requestPasswordReset(String email);
     void resetPassword(String token, String newPassword);
+    String verifyEmail(String token);
+    String resendVerification(String email);
+    void validateResetToken(String token);
 }

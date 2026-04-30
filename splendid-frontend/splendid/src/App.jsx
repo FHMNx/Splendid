@@ -12,6 +12,8 @@ import Transactions from "./pages/Transactions";
 import Profile from "./pages/Profile";
 import TransactionForm from "./pages/TransactionForm";
 import EditTransactionModal from "./components/transactions/EditTransactionModal";
+import { Toaster } from "react-hot-toast";
+import VerifyEmail from "./pages/VerifyEmail";
 
 const App = () => {
   return (
@@ -36,7 +38,11 @@ const App = () => {
 
           <Route path="profile" element={<Profile />} />
         </Route>
+
+        <Route path="/verify" element={<VerifyEmail />} />
       </Routes>
+
+      <Toaster position="top-right" />
     </BrowserRouter>
   );
 };

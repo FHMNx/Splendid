@@ -24,8 +24,29 @@ public class UserServiceImpl implements UserService {
     private final JwtService jwtService;
     private final EmailService emailService;
 
+    private static final String EMAIL_REGEX = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$";
+    private static final String PASSWORD_REGEX = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d@$!#%*?&]{8,}$";
+
     @Override
     public void register(RegisterRequestDto request) {
+
+        if (request.getFirstName() == null || request.getFirstName().isBlank()) {
+            throw new IllegalArgumentException("First name is required");
+        }
+
+        if (request.getLastName() == null || request.getLastName().isBlank()) {
+            throw new IllegalArgumentException("Last name is required");
+        }
+
+        if (request.getEmail() == null || !request.getEmail().matches(EMAIL_REGEX)) {
+            throw new IllegalArgumentException("Invalid email format");
+        }
+
+        if (request.getPassword() == null || !request.getPassword().matches(PASSWORD_REGEX)) {
+            throw new IllegalArgumentException(
+                    "Password must be 8+ chars with uppercase, lowercase, and number"
+            );
+        }
 
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("Email already registered");
@@ -55,10 +76,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public AuthResponseDto login(LoginRequestDto request) {
-        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new RuntimeException("Invalid email or password"));
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid Email or password");
+            throw new RuntimeException("Invalid email or password");
         }
 
         if (!user.isVerified()) {
@@ -73,14 +95,16 @@ public class UserServiceImpl implements UserService {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .build();
-
     }
 
     @Override
     public void requestPasswordReset(String email) {
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (user == null) {
+            return;
+        }
 
         String token = UUID.randomUUID().toString();
 
@@ -104,7 +128,6 @@ public class UserServiceImpl implements UserService {
 
         if (user.getResetPasswordExpiry() == null ||
                 user.getResetPasswordExpiry().isBefore(LocalDateTime.now())) {
-
             throw new RuntimeException("Reset token expired");
         }
 
@@ -113,5 +136,73 @@ public class UserServiceImpl implements UserService {
         user.setResetPasswordExpiry(null);
 
         userRepository.save(user);
+    }
+
+
+    @Override
+    public String verifyEmail(String token) {
+
+        User user = userRepository.findByVerificationToken(token)
+                .orElseThrow(() -> new RuntimeException("Invalid verification link"));
+
+        if (user.isVerified()) {
+            return "Email already verified.";
+        }
+
+        if (user.getTokenExpiry() == null ||
+                user.getTokenExpiry().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Verification link expired");
+        }
+
+        user.setVerified(true);
+        user.setVerificationToken(null);
+        user.setTokenExpiry(null);
+
+        userRepository.save(user);
+
+        return "Email verified successfully";
+    }
+
+    @Override
+    public String resendVerification(String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.isVerified()) {
+            throw new RuntimeException("Email already verified");
+        }
+
+        if (user.getTokenExpiry() != null &&
+                user.getTokenExpiry().isAfter(LocalDateTime.now().minusMinutes(2))) {
+            throw new RuntimeException("Please wait before requesting another email");
+        }
+
+        String newToken = UUID.randomUUID().toString();
+
+        user.setVerificationToken(newToken);
+        user.setTokenExpiry(LocalDateTime.now().plusHours(24));
+
+        userRepository.save(user);
+
+        emailService.sendVerificationEmail(
+                user.getEmail(),
+                user.getFirstName(),
+                newToken
+        );
+
+        return "Verification email resent successfully";
+    }
+
+    @Override
+    public void validateResetToken(String token) {
+
+        User user = userRepository.findByResetPasswordToken(token)
+                .orElseThrow(() -> new RuntimeException("Invalid token"));
+
+        if (user.getResetPasswordExpiry() == null ||
+                user.getResetPasswordExpiry().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Token expired");
+        }
     }
 }
