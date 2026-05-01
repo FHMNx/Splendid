@@ -2,16 +2,53 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import PageTitle from "../components/PageTitle";
 import logo from "../assets/splendid.png";
+import { useNavigate } from "react-router-dom";
+import { loginUser } from "../features/auth/authAPI";
+import { toast } from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
+
+  const { login } = useAuth();
+
+  const [loading, setLoading] = useState(false);
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleLogin = async (e) => {
     e.preventDefault();
+    if (!form.email || !form.password) {
+      toast.error("Please fill all fields");
+      return;
+    }
 
-    if (!email || !password) {
-      alert("Please fill all the fields");
+    if (!emailRegex.test(form.email)) {
+      toast.error("Invalid email format");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await loginUser(form);
+
+      const data = response.data;
+      login(data);
+
+      toast.success(`Login Successful! Welcome back, ${data.firstName}!`);
+      navigate("/dashboard");
+    } catch (error) {
+      toast.error("Login failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -48,8 +85,9 @@ const Login = () => {
               <label className="text-sm text-green-800 ml-1">Email</label>
               <input
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                name="email"
+                value={form.email}
+                onChange={handleChange}
                 placeholder="Enter your email"
                 className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-600 focus:border-transparent outline-none transition-all mt-1"
               />
@@ -59,8 +97,9 @@ const Login = () => {
               <label className="text-sm text-green-800 ml-1">Password</label>
               <input
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                name="password"
+                value={form.password}
+                onChange={handleChange}
                 placeholder="Enter your password"
                 className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-600 focus:border-transparent outline-none transition-all mt-1"
               />
@@ -74,12 +113,12 @@ const Login = () => {
                 />
                 Remember me
               </label>
-              <a
-                href="#"
+              <Link
+                to={"/forgot-password"}
                 className="text-blue-800 font-semibold hover:underline text-sm"
               >
                 Forgot password?
-              </a>
+              </Link>
             </div>
 
             <button

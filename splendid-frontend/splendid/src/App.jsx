@@ -14,6 +14,10 @@ import TransactionForm from "./pages/TransactionForm";
 import EditTransactionModal from "./components/transactions/EditTransactionModal";
 import { Toaster } from "react-hot-toast";
 import VerifyEmail from "./pages/VerifyEmail";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import PrivateRoute from "./routes/PrivateRoute";
+import PublicRoute from "./routes/PublicRoute";
 
 const App = () => {
   return (
@@ -23,23 +27,30 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/about-us" element={<About />} />
         <Route path="/contact-us" element={<Contact />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
+
+        <Route element={<PublicRoute />}>
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+        </Route>
 
         {/* Dashboard */}
-        <Route path="/dashboard" element={<DashboardLayout />}>
-          <Route index element={<Dashboard />} />
+        <Route element={<PrivateRoute />}>
+          <Route path="/dashboard" element={<DashboardLayout />}>
+            <Route index element={<Dashboard />} />
 
-          <Route path="transactions">
-            <Route index element={<Transactions />} />
-            <Route path="add" element={<TransactionForm />} />
-            <Route path="edit" element={<EditTransactionModal />} />
+            <Route path="transactions">
+              <Route index element={<Transactions />} />
+              <Route path="add" element={<TransactionForm />} />
+              <Route path="edit" element={<EditTransactionModal />} />
+            </Route>
+
+            <Route path="profile" element={<Profile />} />
           </Route>
-
-          <Route path="profile" element={<Profile />} />
         </Route>
 
         <Route path="/verify" element={<VerifyEmail />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
 
       <Toaster position="top-right" />

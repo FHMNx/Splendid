@@ -20,18 +20,18 @@ const VerifyEmail = () => {
       try {
         const res = await api.get(`/auth/verify?token=${token}`);
 
-        toast.success(res.data.message || "Email verified successfully");
+        toast.success("Email verified successfully");
 
         // redirect after 2 seconds
         setTimeout(() => {
           navigate("/login");
-        }, 2000);
+        }, 3000);
       } catch (error) {
-        toast.error(error.response?.data?.message || "Verification failed");
+        toast.error("Verification failed");
 
         setTimeout(() => {
           navigate("/login");
-        }, 2000);
+        }, 3000);
       }
     };
 
