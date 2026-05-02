@@ -1,7 +1,14 @@
-import React, { useMemo, useState } from "react";
+import React from "react";
 import { CheckCircle2, Loader2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import PageTitle from "../components/PageTitle";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import { useState } from "react";
+import { useEffect } from "react";
+import { useMemo } from "react";
+
+import { createTransaction } from "../features/transactions/transactionAPI";
+import { getCategoriesByType } from "../features/categories/categoryAPI";
 
 const INITIAL_FORM = {
   title: "",
@@ -10,37 +17,20 @@ const INITIAL_FORM = {
   category: "",
   date: "",
   description: "",
+  paymentMethod: "",
 };
 
-const REQUIRED_FIELDS = ["title", "amount", "type", "category", "date"];
+const REQUIRED_FIELDS = [
+  "title",
+  "amount",
+  "paymentMethod",
+  "type",
+  "category",
+  "date",
+];
 
-const validateForm = (values) => {
-  const errors = {};
-
-  if (!values.title.trim()) {
-    errors.title = "Title is required.";
-  }
-
-  if (!values.amount) {
-    errors.amount = "Amount is required.";
-  } else if (Number(values.amount) <= 0) {
-    errors.amount = "Amount must be greater than zero.";
-  }
-
-  if (!values.type) {
-    errors.type = "Transaction type is required.";
-  }
-
-  if (!values.category) {
-    errors.category = "Category is required.";
-  }
-
-  if (!values.date) {
-    errors.date = "Date is required.";
-  }
-
-  return errors;
-};
+const inputBaseClass =
+  "w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-zinc-800 outline-none transition-all duration-200 focus:ring-2";
 
 const TransactionForm = () => {
   const navigate = useNavigate();
@@ -48,40 +38,7 @@ const TransactionForm = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-
-  const hasEmptyRequired = useMemo(() => {
-    return REQUIRED_FIELDS.some((field) => !String(formData[field]).trim());
-  }, [formData]);
-
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: "" }));
-    setIsSuccess(false);
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const validationErrors = validateForm(formData);
-
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    window.setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSuccess(true);
-      setFormData(INITIAL_FORM);
-      setErrors({});
-    }, 900);
-  };
-
-  const inputBaseClass =
-    "w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-zinc-800 outline-none transition-all duration-200 focus:ring-2";
+  const [categories, setCategories] = useState([]);
 
   const getInputClass = (fieldName) => {
     return `${inputBaseClass} ${
@@ -89,6 +46,106 @@ const TransactionForm = () => {
         ? "border-red-300 focus:border-red-400 focus:ring-red-200"
         : "border-emerald-200 focus:border-emerald-500 focus:ring-emerald-200"
     }`;
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+      ...(name === "type" && { category: "" }), // Reset category if type changes
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
+
+    setIsSuccess(false);
+  };
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      if (!formData.type) return;
+
+      try {
+        const response = await getCategoriesByType(formData.type.toUpperCase());
+        setCategories(response);
+      } catch (error) {
+        toast.error("Failed to load categories. Please try again.");
+      }
+    };
+
+    fetchCategories();
+  }, [formData.type]);
+
+  const validateForm = (values) => {
+    const validationErrors = {};
+
+    if (!values.title.trim()) {
+      validationErrors.title = "Title is required.";
+    }
+
+    if (!values.amount) {
+      validationErrors.amount = "Amount is required.";
+    } else if (Number(values.amount) <= 0) {
+      validationErrors.amount = "Amount must be greater than zero.";
+    }
+
+    if (!values.paymentMethod) {
+      validationErrors.paymentMethod = "Payment method is required.";
+    }
+    if (!values.type) {
+      validationErrors.type = "Transaction type is required.";
+    }
+    if (!values.category) {
+      validationErrors.category = "Category is required.";
+    }
+    if (!values.date) {
+      validationErrors.date = "Date is required.";
+    }
+
+    return validationErrors;
+  };
+
+  const hasEmptyRequired = useMemo(() => {
+    return REQUIRED_FIELDS.some((field) => !String(formData[field]).trim());
+  }, [formData]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const validationErrors = validateForm(formData);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      toast.error("Please fix the highlighted fields.");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      const payload = {
+        title: formData.title,
+        amount: Number(formData.amount),
+        date: formData.date,
+        type: formData.type.toUpperCase(),
+        paymentMethod: formData.paymentMethod,
+        notes: formData.description,
+        categoryId: Number(formData.category),
+      };
+
+      await createTransaction(payload);
+      setIsSuccess(true);
+      toast.success("Transaction created successfully!");
+      setFormData(INITIAL_FORM);
+      setErrors({});
+    } catch (error) {
+      toast.error("Failed to create transaction. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -120,29 +177,29 @@ const TransactionForm = () => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label
-                htmlFor="title"
-                className="mb-1.5 block text-sm font-medium text-zinc-700"
-              >
-                Title <span className="text-red-500">*</span>
-              </label>
-              <input
-                id="title"
-                name="title"
-                type="text"
-                value={formData.title}
-                onChange={handleChange}
-                placeholder="e.g. Grocery Shopping"
-                className={getInputClass("title")}
-              />
-              {errors.title && (
-                <p className="mt-1 text-xs text-red-600">{errors.title}</p>
-              )}
-            </div>
-
+          <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label
+                  htmlFor="title"
+                  className="mb-1.5 block text-sm font-medium text-zinc-700"
+                >
+                  Title <span className="text-red-500">*</span>
+                </label>
+                <input
+                  id="title"
+                  name="title"
+                  type="text"
+                  value={formData.title}
+                  onChange={handleChange}
+                  placeholder="e.g. Grocery Shopping"
+                  className={getInputClass("title")}
+                />
+                {errors.title && (
+                  <p className="mt-1 text-xs text-red-600">{errors.title}</p>
+                )}
+              </div>
+
               <div>
                 <label
                   htmlFor="amount"
@@ -167,11 +224,36 @@ const TransactionForm = () => {
               </div>
 
               <div>
+                <label className="mb-1.5 block text-sm font-medium text-zinc-700">
+                  Payment Method *
+                </label>
+                <select
+                  name="paymentMethod"
+                  value={formData.paymentMethod}
+                  onChange={handleChange}
+                  className={getInputClass("paymentMethod")}
+                >
+                  <option value="">Select method</option>
+                  <option value="CASH">Cash</option>
+                  <option value="CREDIT_CARD">Credit Card</option>
+                  <option value="DEBIT_CARD">Debit Card</option>
+                  <option value="BANK_TRANSFER">Bank Transfer</option>
+                  <option value="MOBILE_PAYMENT">Mobile Payment</option>
+                  <option value="OTHER">Other</option>
+                </select>
+                {errors.paymentMethod && (
+                  <p className="mt-1 text-xs text-red-600">
+                    {errors.paymentMethod}
+                  </p>
+                )}
+              </div>
+
+              <div>
                 <label
                   htmlFor="type"
                   className="mb-1.5 block text-sm font-medium text-zinc-700"
                 >
-                  Type <span className="text-red-500">*</span>
+                  Transaction Type <span className="text-red-500">*</span>
                 </label>
                 <select
                   id="type"
@@ -199,18 +281,17 @@ const TransactionForm = () => {
                   Category <span className="text-red-500">*</span>
                 </label>
                 <select
-                  id="category"
                   name="category"
                   value={formData.category}
                   onChange={handleChange}
                   className={getInputClass("category")}
                 >
                   <option value="">Select category</option>
-                  <option value="Food">Food</option>
-                  <option value="Travel">Travel</option>
-                  <option value="Bills">Bills</option>
-                  <option value="Shopping">Shopping</option>
-                  <option value="Other">Other</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
                 </select>
                 {errors.category && (
                   <p className="mt-1 text-xs text-red-600">{errors.category}</p>

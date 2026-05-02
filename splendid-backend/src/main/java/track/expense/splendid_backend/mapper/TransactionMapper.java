@@ -1,6 +1,7 @@
 package track.expense.splendid_backend.mapper;
 
 import track.expense.splendid_backend.dto.TransactionDto;
+import track.expense.splendid_backend.entity.Category;
 import track.expense.splendid_backend.entity.Transaction;
 
 public class TransactionMapper {
@@ -19,7 +20,7 @@ public class TransactionMapper {
                 .date(transaction.getDate())
                 .paymentMethod(transaction.getPaymentMethod().name())
                 .notes(transaction.getNotes())
-                .categoryId(transaction.getCategoryId())
+                .categoryId(transaction.getCategory() != null ? transaction.getCategory().getId() : null)
                 .build();
     }
 
@@ -38,7 +39,6 @@ public class TransactionMapper {
         transaction.setType(Transaction.TransactionType.valueOf(transactionDto.getType().toUpperCase()));
         transaction.setPaymentMethod(Transaction.PaymentMethod.valueOf(transactionDto.getPaymentMethod().toUpperCase()));
         transaction.setNotes(transactionDto.getNotes());
-        transaction.setCategoryId(transactionDto.getCategoryId());
 
         return transaction;
     }

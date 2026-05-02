@@ -4,10 +4,12 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import track.expense.splendid_backend.dto.TransactionDto;
+import track.expense.splendid_backend.entity.Category;
 import track.expense.splendid_backend.entity.Transaction;
 import track.expense.splendid_backend.entity.User;
 import track.expense.splendid_backend.exception.ResourceNotFoundException;
 import track.expense.splendid_backend.mapper.TransactionMapper;
+import track.expense.splendid_backend.repository.CategoryRepository;
 import track.expense.splendid_backend.repository.TransactionRepository;
 import track.expense.splendid_backend.repository.UserRepository;
 import track.expense.splendid_backend.service.TransactionService;
@@ -21,6 +23,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     private TransactionRepository transactionRepository;
     private UserRepository userRepository;
+    private CategoryRepository categoryRepository;
 
     @Override
     public TransactionDto createTransaction(TransactionDto transactionDto) {
@@ -28,6 +31,9 @@ public class TransactionServiceImpl implements TransactionService {
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        Category category = categoryRepository.findById(transactionDto.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+
+        transaction.setCategory(category);
         transaction.setUser(user);
 
         Transaction savedTransaction = transactionRepository.save(transaction);
@@ -63,7 +69,10 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setDate(transactionDto.getDate());
         transaction.setPaymentMethod(Transaction.PaymentMethod.valueOf(transactionDto.getPaymentMethod().toUpperCase()));
         transaction.setNotes(transactionDto.getNotes());
-        transaction.setCategoryId(transactionDto.getCategoryId());
+
+        Category category = categoryRepository.findById(transactionDto.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+        transaction.setCategory(category);
+
         Transaction updatedTransaction = transactionRepository.save(transaction);
 
         return TransactionMapper.toDto(updatedTransaction);

@@ -2,8 +2,12 @@ import api from "../../api/axios";
 
 // CREATE transaction
 export const createTransaction = async (transactionData) => {
-  const response = await api.post("/transactions/create", transactionData);
-  return response.data;
+  try {
+    const response = await api.post("/transactions/create", transactionData);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
 };
 
 // GET all transactions (user-specific from backend)
@@ -12,7 +16,7 @@ export const getAllTransactions = async () => {
   return response.data;
 };
 
-// GET transaction by ID
+// GET transaction by transaction ID
 export const getTransactionById = async (id) => {
   const response = await api.get(`/transactions/${id}`);
   return response.data;
