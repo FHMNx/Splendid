@@ -1,5 +1,6 @@
 package track.expense.splendid_backend.service;
 
+import org.springframework.data.domain.Page;
 import track.expense.splendid_backend.dto.TransactionDto;
 
 import java.util.List;
@@ -10,7 +11,7 @@ public interface TransactionService {
 
     TransactionDto getTransactionById(Long transactionId);
 
-    List<TransactionDto> getAllTransactions();
+    Page<TransactionDto> getAllTransactions(int page , int size);
 
     TransactionDto updateTransaction(Long transactionId , TransactionDto transactionDto);
 

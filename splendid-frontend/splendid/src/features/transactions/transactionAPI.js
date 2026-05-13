@@ -11,8 +11,8 @@ export const createTransaction = async (transactionData) => {
 };
 
 // GET all transactions (user-specific from backend)
-export const getAllTransactions = async () => {
-  const response = await api.get("/transactions/all");
+export const getAllTransactions = async (page = 0, size = 10) => {
+  const response = await api.get(`/transactions/all?page=${page}&size=${size}`);
   return response.data;
 };
 

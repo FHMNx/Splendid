@@ -1,6 +1,7 @@
 package track.expense.splendid_backend.service.impl;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import track.expense.splendid_backend.dto.TransactionDto;
@@ -13,6 +14,10 @@ import track.expense.splendid_backend.repository.CategoryRepository;
 import track.expense.splendid_backend.repository.TransactionRepository;
 import track.expense.splendid_backend.repository.UserRepository;
 import track.expense.splendid_backend.service.TransactionService;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,21 +47,28 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public TransactionDto getTransactionById(Long transactionId) {
-        Transaction transaction = transactionRepository.findById(transactionId).orElseThrow(() -> new ResourceNotFoundException("Transaction not found with this id : " + transactionId));
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Transaction transaction = transactionRepository.findById(transactionId).orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
+        if (!transaction.getUser().getEmail().equals(email)) {
+            throw new ResourceNotFoundException("User not found");
+        }
         return TransactionMapper.toDto(transaction);
     }
 
     @Override
-    public List<TransactionDto> getAllTransactions() {
+    public Page<TransactionDto> getAllTransactions(int page, int size) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        List<Transaction> transactions = transactionRepository.findByUser(user);
-        return transactions.stream().map(TransactionMapper::toDto).toList();
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Transaction> transactions = transactionRepository.findByUser(user,pageable);
+        return transactions.map(TransactionMapper::toDto);
     }
 
     @Override
     public TransactionDto updateTransaction(Long transactionId, TransactionDto transactionDto) {
-        Transaction transaction = transactionRepository.findById(transactionId).orElseThrow(() -> new ResourceNotFoundException("Transaction not found with this id : " + transactionId));
+        Transaction transaction = transactionRepository.findById(transactionId).orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         if (!transaction.getUser().getEmail().equals(email)) {
@@ -80,7 +92,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public void deleteTransaction(Long transactionId) {
-        Transaction transaction = transactionRepository.findById(transactionId).orElseThrow(() -> new ResourceNotFoundException("Transaction not found with this id : " + transactionId));
+        Transaction transaction = transactionRepository.findById(transactionId).orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!transaction.getUser().getEmail().equals(email)) {
             throw new ResourceNotFoundException("unauthorized access");

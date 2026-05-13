@@ -9,72 +9,10 @@ import {
 } from "lucide-react";
 import EditTransactionModal from "../components/transactions/EditTransactionModal";
 import PageTitle from "../components/PageTitle";
+import { getAllTransactions, deleteTransaction } from "../features/transactions/transactionAPI";
+import { toast } from "react-hot-toast";
 
-const TRANSACTIONS = [
-  {
-    id: 1,
-    title: "Salary Payment",
-    description: "Monthly company salary",
-    amount: 2500,
-    category: "Salary",
-    date: "2026-04-20",
-    type: "Income",
-  },
-  {
-    id: 2,
-    title: "Groceries",
-    description: "Weekly food shopping",
-    amount: 124,
-    category: "Food",
-    date: "2026-04-21",
-    type: "Expense",
-  },
-  {
-    id: 3,
-    title: "Freelance Project",
-    description: "Landing page delivery",
-    amount: 780,
-    category: "Freelance",
-    date: "2026-04-18",
-    type: "Income",
-  },
-  {
-    id: 4,
-    title: "Electricity Bill",
-    description: "Monthly utility payment",
-    amount: 68,
-    category: "Bills",
-    date: "2026-04-17",
-    type: "Expense",
-  },
-  {
-    id: 5,
-    title: "Uber Ride",
-    description: "Commute to office",
-    amount: 16,
-    category: "Travel",
-    date: "2026-04-15",
-    type: "Expense",
-  },
-  {
-    id: 6,
-    title: "Dividend Credit",
-    description: "Stock dividend payout",
-    amount: 210,
-    category: "Investments",
-    date: "2026-04-12",
-    type: "Income",
-  },
-  {
-    id: 7,
-    title: "Internet Subscription",
-    description: "Home broadband",
-    amount: 34,
-    category: "Bills",
-    date: "2026-04-10",
-    type: "Expense",
-  },
-];
+
 
 const SummaryCard = ({ title, value, tone = "default" }) => {
   const toneClass =
@@ -143,7 +81,7 @@ const DeleteModal = ({ transaction, onCancel, onConfirm }) => {
 };
 
 const Transactions = () => {
-  const [data, setData] = useState(TRANSACTIONS);
+  const [data, setData] = useState([]);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -155,12 +93,38 @@ const Transactions = () => {
   const [sortDirection, setSortDirection] = useState("desc");
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [transactionToDelete, setTransactionToDelete] = useState(null);
 
+  const [apiTotalPages, setApiTotalPages] = useState(1);
+  const [totalTransactions, setTotalTransactions] = useState(0);
+
+
+  useEffect(() => {
+
+    const fetchTransactions = async () => {
+      try {
+        setIsLoading(true)
+        const response = await getAllTransactions(currentPage - 1, pageSize)
+        setData(response.content)
+        setApiTotalPages(response.totalPages);
+        setTotalTransactions(response.totalElements);
+      } catch (error) {
+        toast.error("Failed to fetch transactions")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchTransactions();
+
+  }, [currentPage, pageSize])
+
+
+
   const categories = useMemo(() => {
-    return ["All", ...new Set(TRANSACTIONS.map((item) => item.category))];
-  }, []);
+    return ["All", ...new Set(data.map((item) => item.category))];
+  }, [data]);
 
   const filteredTransactions = useMemo(() => {
     return data
@@ -192,7 +156,7 @@ const Transactions = () => {
         const direction = sortDirection === "asc" ? 1 : -1;
 
         if (sortField === "amount") {
-          return (a.amount - b.amount) * direction;
+          return (Number(a.amount) - Number(b.amount)) * direction;
         }
 
         return (
@@ -214,10 +178,7 @@ const Transactions = () => {
     setCurrentPage(1);
   }, [search, typeFilter, categoryFilter, startDate, endDate, pageSize]);
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(filteredTransactions.length / pageSize),
-  );
+  const totalPages = Math.max(1, apiTotalPages);
 
   useEffect(() => {
     if (currentPage > totalPages) {
@@ -225,19 +186,16 @@ const Transactions = () => {
     }
   }, [currentPage, totalPages]);
 
-  const paginatedTransactions = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return filteredTransactions.slice(start, start + pageSize);
-  }, [filteredTransactions, currentPage, pageSize]);
 
   const totals = useMemo(() => {
     return filteredTransactions.reduce(
       (acc, item) => {
+        const amount = Number(item.amount) || 0;
         acc.count += 1;
-        if (item.type === "Income") {
-          acc.income += item.amount;
+        if (String(item.type).toLowerCase() === "income") {
+          acc.income += amount;
         } else {
-          acc.expense += item.amount;
+          acc.expense += amount;
         }
         return acc;
       },
@@ -254,13 +212,25 @@ const Transactions = () => {
     setSortDirection("desc");
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
+
     if (!transactionToDelete) return;
 
-    setData((prev) =>
-      prev.filter((item) => item.id !== transactionToDelete.id),
-    );
-    setTransactionToDelete(null);
+    try {
+
+      await deleteTransaction(transactionToDelete.id);
+
+      setData((prev) =>
+        prev.filter((item) => item.id !== transactionToDelete.id)
+      );
+
+      setTransactionToDelete(null);
+
+    } catch (error) {
+
+      console.error("Delete failed", error);
+
+    }
   };
 
   const handleOpenEditModal = (event, transaction) => {
@@ -287,6 +257,10 @@ const Transactions = () => {
   const pageNumbers = useMemo(() => {
     return Array.from({ length: totalPages }, (_, index) => index + 1);
   }, [totalPages]);
+
+  const paginatedTransactions = useMemo(() => {
+    return filteredTransactions;
+  }, [filteredTransactions]);
 
   return (
     <>
@@ -344,8 +318,8 @@ const Transactions = () => {
               onChange={(event) => setCategoryFilter(event.target.value)}
               className="rounded-lg border border-emerald-200 bg-white px-3 py-2.5 text-sm text-zinc-800 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
             >
-              {categories.map((category) => (
-                <option key={category} value={category}>
+              {categories.map((category, idx) => (
+                <option key={`${String(category ?? "")} - ${idx}`} value={category}>
                   Category: {category}
                 </option>
               ))}
@@ -371,15 +345,15 @@ const Transactions = () => {
         </section>
 
         <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <SummaryCard title="Total Transactions" value={totals.count} />
+          <SummaryCard title="Total Transactions" value={totalTransactions} />
           <SummaryCard
             title="Total Income"
-            value={`$${totals.income.toFixed(2)}`}
+            value={`LKR ${totals.income.toFixed(2)}`}
             tone="income"
           />
           <SummaryCard
             title="Total Expense"
-            value={`$${totals.expense.toFixed(2)}`}
+            value={`LKR ${totals.expense.toFixed(2)}`}
             tone="expense"
           />
         </section>
@@ -447,17 +421,16 @@ const Transactions = () => {
                         </p>
                       </td>
                       <td className="px-4 py-3 font-medium">
-                        ${item.amount.toFixed(2)}
+                        {`LKR ${Number(item.amount).toFixed(2)}`}
                       </td>
-                      <td className="px-4 py-3">{item.category}</td>
+                      <td className="px-4 py-3">{item.categoryName}</td>
                       <td className="px-4 py-3">{item.date}</td>
                       <td className="px-4 py-3">
                         <span
-                          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
-                            item.type === "Income"
-                              ? "bg-emerald-100 text-emerald-700"
-                              : "bg-red-100 text-red-700"
-                          }`}
+                          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${String(item.type).toLowerCase() === "income"
+                            ? "bg-emerald-100 text-emerald-700"
+                            : "bg-red-100 text-red-700"
+                            }`}
                         >
                           {item.type}
                         </span>
@@ -520,11 +493,10 @@ const Transactions = () => {
                   key={pageNumber}
                   type="button"
                   onClick={() => setCurrentPage(pageNumber)}
-                  className={`h-8 w-8 rounded-md text-sm font-medium transition ${
-                    currentPage === pageNumber
-                      ? "bg-emerald-700 text-white"
-                      : "text-zinc-700 hover:bg-emerald-100"
-                  }`}
+                  className={`h-8 w-8 rounded-md text-sm font-medium transition ${currentPage === pageNumber
+                    ? "bg-emerald-700 text-white"
+                    : "text-zinc-700 hover:bg-emerald-100"
+                    }`}
                 >
                   {pageNumber}
                 </button>

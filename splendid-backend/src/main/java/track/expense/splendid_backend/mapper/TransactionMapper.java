@@ -21,6 +21,7 @@ public class TransactionMapper {
                 .paymentMethod(transaction.getPaymentMethod().name())
                 .notes(transaction.getNotes())
                 .categoryId(transaction.getCategory() != null ? transaction.getCategory().getId() : null)
+                .categoryName(transaction.getCategory() != null ? transaction.getCategory().getName() : null)
                 .build();
     }
 

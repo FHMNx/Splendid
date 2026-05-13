@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import track.expense.splendid_backend.dto.TransactionDto;
 import track.expense.splendid_backend.service.TransactionService;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -19,36 +20,37 @@ public class TransactionController {
     //ADD TRANSACTION
     @PostMapping("/create")
     public ResponseEntity<TransactionDto> createTransaction(@RequestBody TransactionDto transactionDto) {
-       TransactionDto savedTransaction = transactionService.createTransaction(transactionDto);
-       return new ResponseEntity<>(savedTransaction, HttpStatus.CREATED);
+        TransactionDto savedTransaction = transactionService.createTransaction(transactionDto);
+        return new ResponseEntity<>(savedTransaction, HttpStatus.CREATED);
     }
 
     //GET TRANSACTION BY ID
     @GetMapping("/{id}")
     public ResponseEntity<TransactionDto> getTransactionById(@PathVariable("id") Long transactionId) {
-       TransactionDto transactionDto = transactionService.getTransactionById(transactionId);
-       return  ResponseEntity.ok(transactionDto);
+        TransactionDto transactionDto = transactionService.getTransactionById(transactionId);
+        return ResponseEntity.ok(transactionDto);
     }
 
     //GET ALL TRANSACTIONS
     @GetMapping("/all")
-    public ResponseEntity<List<TransactionDto>> getAllTransactions() {
-       List<TransactionDto> transactions = transactionService.getAllTransactions();
-       return ResponseEntity.ok(transactions);
+    public ResponseEntity<Page<TransactionDto>> getAllTransactions(@RequestParam(defaultValue = "0") int page,
+                                                                   @RequestParam(defaultValue = "10") int size) {
+        Page<TransactionDto> transactions = transactionService.getAllTransactions(page, size);
+        return ResponseEntity.ok(transactions);
     }
 
     //UPDATE TRANSACTION
     @PutMapping("/{id}")
     public ResponseEntity<TransactionDto> updateTransaction(@PathVariable("id") Long transactionId, @RequestBody TransactionDto transactionDto) {
-       TransactionDto updatedTransaction = transactionService.updateTransaction(transactionId, transactionDto);
-       return ResponseEntity.status(HttpStatus.OK).body(updatedTransaction);
+        TransactionDto updatedTransaction = transactionService.updateTransaction(transactionId, transactionDto);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedTransaction);
     }
 
     //DELETE TRANSACTION
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteTransaction(@PathVariable("id") Long transactionId) {
-       transactionService.deleteTransaction(transactionId);
-       return ResponseEntity.ok("Transaction deleted successfully");
+        transactionService.deleteTransaction(transactionId);
+        return ResponseEntity.ok("Transaction deleted successfully");
     }
 
 }

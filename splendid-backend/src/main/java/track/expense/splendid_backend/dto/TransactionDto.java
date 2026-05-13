@@ -19,4 +19,5 @@ public class TransactionDto {
     private String paymentMethod;
     private String notes;
     private Long categoryId;
+    private String categoryName;
 }
