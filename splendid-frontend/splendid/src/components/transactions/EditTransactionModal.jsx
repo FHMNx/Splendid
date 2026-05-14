@@ -50,10 +50,10 @@ const EditTransactionModal = ({ data, onClose, onUpdate }) => {
     setFormData({
       title: data.title ?? "",
       amount: data.amount ?? "",
-      type: data.type ?? "",
-      category: data.category ?? "",
+      type: data.type ?? data.type.toUpperCase() ?? "",
+      category: data.categoryName ?? "",
       date: data.date ?? "",
-      description: data.description ?? "",
+      description: data.notes ?? "",
     });
     setErrors({});
     setSuccessMessage("");
@@ -270,8 +270,8 @@ const EditTransactionModal = ({ data, onClose, onUpdate }) => {
                 className={fieldClass("type")}
               >
                 <option value="">Select type</option>
-                <option value="Income">Income</option>
-                <option value="Expense">Expense</option>
+                <option value="INCOME">Income</option>
+                <option value="EXPENSE">Expense</option>
               </select>
               {errors.type && (
                 <p className="mt-1 text-xs text-red-600">{errors.type}</p>

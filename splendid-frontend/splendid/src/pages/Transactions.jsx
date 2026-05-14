@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import EditTransactionModal from "../components/transactions/EditTransactionModal";
 import PageTitle from "../components/PageTitle";
-import { getAllTransactions, deleteTransaction } from "../features/transactions/transactionAPI";
+import { getAllTransactions, deleteTransaction, updateTransaction } from "../features/transactions/transactionAPI";
 import { toast } from "react-hot-toast";
 
 
@@ -94,6 +94,8 @@ const Transactions = () => {
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+
   const [transactionToDelete, setTransactionToDelete] = useState(null);
 
   const [apiTotalPages, setApiTotalPages] = useState(1);
@@ -106,11 +108,12 @@ const Transactions = () => {
       try {
         setIsLoading(true)
         const response = await getAllTransactions(currentPage - 1, pageSize)
-        setData(response.content)
-        setApiTotalPages(response.totalPages);
-        setTotalTransactions(response.totalElements);
+        setData(response.content || [])
+        setApiTotalPages(response.totalPages || 1);
+        setTotalTransactions(response.totalElements || 0);
       } catch (error) {
         toast.error("Failed to fetch transactions")
+        setData([])
       } finally {
         setIsLoading(false)
       }
@@ -123,25 +126,22 @@ const Transactions = () => {
 
 
   const categories = useMemo(() => {
-    return ["All", ...new Set(data.map((item) => item.category))];
+    return ["All", ...new Set((data || []).map((item) => item.categoryName))];
   }, [data]);
 
+
+
   const filteredTransactions = useMemo(() => {
-    return data
+    return (data || [])
       .filter((item) => {
         const query = search.trim().toLowerCase();
-        const matchesSearch =
-          query.length === 0 ||
-          item.title.toLowerCase().includes(query) ||
-          item.description.toLowerCase().includes(query);
 
+        const matchesSearch = query.length === 0 || item.title.toLowerCase().includes(query) || item.notes?.toLowerCase().includes(query);
         const matchesType = typeFilter === "All" || item.type === typeFilter;
-        const matchesCategory =
-          categoryFilter === "All" || item.category === categoryFilter;
+        const matchesCategory = categoryFilter === "All" || item.categoryName === categoryFilter;
 
         const dateValue = new Date(item.date).getTime();
-        const afterStart =
-          !startDate || dateValue >= new Date(startDate).getTime();
+        const afterStart = !startDate || dateValue >= new Date(startDate).getTime();
         const beforeEnd = !endDate || dateValue <= new Date(endDate).getTime();
 
         return (
@@ -152,6 +152,7 @@ const Transactions = () => {
           beforeEnd
         );
       })
+
       .sort((a, b) => {
         const direction = sortDirection === "asc" ? 1 : -1;
 
@@ -246,21 +247,38 @@ const Transactions = () => {
     setSelectedTransaction(null);
   };
 
-  const handleUpdate = (updatedTransaction) => {
-    setData((prev) =>
-      prev.map((item) =>
-        item.id === updatedTransaction.id ? updatedTransaction : item,
-      ),
-    );
-  };
+  const handleUpdate = async (updatedTransaction) => {
+    setIsUpdating(true);
+    try {
+      const response = await updateTransaction(updatedTransaction.id, updatedTransaction);
 
-  const pageNumbers = useMemo(() => {
-    return Array.from({ length: totalPages }, (_, index) => index + 1);
-  }, [totalPages]);
+      if (!response) {
+        toast.error("Failed to update transaction");
+        return;
+      }
 
-  const paginatedTransactions = useMemo(() => {
-    return filteredTransactions;
-  }, [filteredTransactions]);
+      setData((prev) =>
+        prev.map((item) =>
+          item.id === response.id ? response : item
+        )
+      );
+
+      handleCloseEditModal();
+      toast.success("Transaction updated successfully");
+
+    } catch (error) {
+      toast.error("Failed to update transaction");
+    } finally {
+      setIsUpdating(false);
+    }
+  }
+
+  const pageNumbers = Array.from(
+    { length: totalPages },
+    (_, index) => index + 1
+  );
+
+  const paginatedTransactions = filteredTransactions;
 
   return (
     <>
