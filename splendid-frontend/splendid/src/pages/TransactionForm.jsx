@@ -139,6 +139,7 @@ const TransactionForm = () => {
       await createTransaction(payload);
       setIsSuccess(true);
       toast.success("Transaction created successfully!");
+      
       setFormData(INITIAL_FORM);
       setErrors({});
     } catch (error) {

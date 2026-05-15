@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import EditTransactionModal from "../components/transactions/EditTransactionModal";
 import PageTitle from "../components/PageTitle";
-import { getAllTransactions, deleteTransaction, updateTransaction } from "../features/transactions/transactionAPI";
+import { getAllTransactions, deleteTransaction, updateTransaction, getTransactionsSummary } from "../features/transactions/transactionAPI";
 import { toast } from "react-hot-toast";
 
 
@@ -101,6 +101,30 @@ const Transactions = () => {
   const [apiTotalPages, setApiTotalPages] = useState(1);
   const [totalTransactions, setTotalTransactions] = useState(0);
 
+  const [summary, setSummary] = useState({
+    totalTransactions: 0,
+    totalIncome: 0,
+    totalExpense: 0,
+    netBalance: 0,
+  });
+  const [isSummaryLoading, setIsSummaryLoading] = useState(false);
+
+  const fetchSummary = async () => {
+    setIsSummaryLoading(true);
+    try {
+      const data = await getTransactionsSummary();
+      setSummary(data);
+    } catch (error) {
+      toast.error("Failed to fetch transactions summary");
+    } finally {
+      setIsSummaryLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchSummary();
+  }, [])
+
 
   useEffect(() => {
 
@@ -137,7 +161,7 @@ const Transactions = () => {
         const query = search.trim().toLowerCase();
 
         const matchesSearch = query.length === 0 || item.title.toLowerCase().includes(query) || item.notes?.toLowerCase().includes(query);
-        const matchesType = typeFilter === "All" || item.type === typeFilter;
+        const matchesType = typeFilter === "All" || item.type.toUpperCase() === typeFilter.toUpperCase();;
         const matchesCategory = categoryFilter === "All" || item.categoryName === categoryFilter;
 
         const dateValue = new Date(item.date).getTime();
@@ -187,23 +211,6 @@ const Transactions = () => {
     }
   }, [currentPage, totalPages]);
 
-
-  const totals = useMemo(() => {
-    return filteredTransactions.reduce(
-      (acc, item) => {
-        const amount = Number(item.amount) || 0;
-        acc.count += 1;
-        if (String(item.type).toLowerCase() === "income") {
-          acc.income += amount;
-        } else {
-          acc.expense += amount;
-        }
-        return acc;
-      },
-      { count: 0, income: 0, expense: 0 },
-    );
-  }, [filteredTransactions]);
-
   const toggleSort = (field) => {
     if (sortField === field) {
       setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
@@ -214,23 +221,20 @@ const Transactions = () => {
   };
 
   const handleDeleteConfirm = async () => {
-
     if (!transactionToDelete) return;
-
     try {
-
       await deleteTransaction(transactionToDelete.id);
-
       setData((prev) =>
         prev.filter((item) => item.id !== transactionToDelete.id)
       );
 
+      setTotalTransactions((prev) => prev - 1);
+      toast.success("Transaction deleted successfully");
       setTransactionToDelete(null);
+      fetchSummary();
 
     } catch (error) {
-
-      console.error("Delete failed", error);
-
+      toast.error("Failed to delete transaction");
     }
   };
 
@@ -265,6 +269,7 @@ const Transactions = () => {
 
       handleCloseEditModal();
       toast.success("Transaction updated successfully");
+      fetchSummary();
 
     } catch (error) {
       toast.error("Failed to update transaction");
@@ -363,15 +368,15 @@ const Transactions = () => {
         </section>
 
         <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <SummaryCard title="Total Transactions" value={totalTransactions} />
+          <SummaryCard title="Total Transactions" value={isSummaryLoading ? "Loading..." : summary.totalTransactions} />
           <SummaryCard
             title="Total Income"
-            value={`LKR ${totals.income.toFixed(2)}`}
+            value={isSummaryLoading ? "Loading..." : `LKR ${Number(summary.totalIncome).toFixed(2)}`}
             tone="income"
           />
           <SummaryCard
             title="Total Expense"
-            value={`LKR ${totals.expense.toFixed(2)}`}
+            value={isSummaryLoading ? "Loading..." : `LKR ${Number(summary.totalExpense).toFixed(2)}`}
             tone="expense"
           />
         </section>
@@ -545,6 +550,7 @@ const Transactions = () => {
           data={isEditModalOpen ? selectedTransaction : null}
           onClose={handleCloseEditModal}
           onUpdate={handleUpdate}
+          isUpdating={isUpdating}
         />
       </div>
     </>

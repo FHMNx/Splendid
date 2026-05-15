@@ -33,3 +33,9 @@ export const deleteTransaction = async (id) => {
   const response = await api.delete(`/transactions/${id}`);
   return response.data;
 };
+
+//GET TRANSACTIONS SUMMARY
+export const getTransactionsSummary = async () => {
+  const response = await api.get("/transactions/summary");
+  return response.data;
+}

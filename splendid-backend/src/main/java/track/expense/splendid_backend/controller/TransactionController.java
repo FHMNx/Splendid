@@ -5,6 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import track.expense.splendid_backend.dto.TransactionDto;
+import track.expense.splendid_backend.dto.TransactionSummaryDto;
+import track.expense.splendid_backend.entity.Transaction;
 import track.expense.splendid_backend.service.TransactionService;
 import org.springframework.data.domain.Page;
 
@@ -51,6 +53,13 @@ public class TransactionController {
     public ResponseEntity<String> deleteTransaction(@PathVariable("id") Long transactionId) {
         transactionService.deleteTransaction(transactionId);
         return ResponseEntity.ok("Transaction deleted successfully");
+    }
+
+    //GET TRANSACTION SUMMARY
+    @GetMapping("summary")
+    public ResponseEntity<TransactionSummaryDto> getTransactionSummery() {
+        TransactionSummaryDto summary = transactionService.getTransactionSummary();
+        return ResponseEntity.ok(summary);
     }
 
 }

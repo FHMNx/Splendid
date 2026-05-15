@@ -39,7 +39,6 @@ const Login = () => {
     try {
       setLoading(true);
       const response = await loginUser(form);
-
       const data = response.data;
       login(data);
 

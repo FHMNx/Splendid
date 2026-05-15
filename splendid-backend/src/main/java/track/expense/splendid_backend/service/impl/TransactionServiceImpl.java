@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import track.expense.splendid_backend.dto.TransactionDto;
+import track.expense.splendid_backend.dto.TransactionSummaryDto;
 import track.expense.splendid_backend.entity.Category;
 import track.expense.splendid_backend.entity.Transaction;
 import track.expense.splendid_backend.entity.User;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,7 +64,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<Transaction> transactions = transactionRepository.findByUser(user,pageable);
+        Page<Transaction> transactions = transactionRepository.findByUser(user, pageable);
         return transactions.map(TransactionMapper::toDto);
     }
 
@@ -98,6 +100,30 @@ public class TransactionServiceImpl implements TransactionService {
             throw new ResourceNotFoundException("unauthorized access");
         }
         transactionRepository.deleteById(transactionId);
+    }
+
+    @Override
+    public TransactionSummaryDto getTransactionSummary() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        List<Transaction> allTransactions = transactionRepository.findByUser(user);
+
+        BigDecimal totalIncome = allTransactions.stream()
+                .filter(t -> t.getType() == Transaction.TransactionType.INCOME)
+                .map(Transaction::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalExpense = allTransactions.stream()
+                .filter(t -> t.getType() == Transaction.TransactionType.EXPENSE)
+                .map(Transaction::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return TransactionSummaryDto.builder()
+                .totalTransactions((long) allTransactions.size())
+                .totalIncome(totalIncome)
+                .totalExpense(totalExpense)
+                .netBalance(totalIncome.subtract(totalExpense))
+                .build();
     }
 
 

@@ -2,6 +2,7 @@ package track.expense.splendid_backend.service;
 
 import org.springframework.data.domain.Page;
 import track.expense.splendid_backend.dto.TransactionDto;
+import track.expense.splendid_backend.dto.TransactionSummaryDto;
 
 import java.util.List;
 
@@ -16,5 +17,7 @@ public interface TransactionService {
     TransactionDto updateTransaction(Long transactionId , TransactionDto transactionDto);
 
     void deleteTransaction(Long transactionId);
+
+    TransactionSummaryDto getTransactionSummary();
 
 }
