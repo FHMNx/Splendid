@@ -1,18 +1,22 @@
 package track.expense.splendid_backend.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import track.expense.splendid_backend.dto.AuthResponseDto;
-import track.expense.splendid_backend.dto.LoginRequestDto;
-import track.expense.splendid_backend.dto.RegisterRequestDto;
+import track.expense.splendid_backend.dto.*;
 import track.expense.splendid_backend.entity.User;
+import track.expense.splendid_backend.entity.UserProfileImage;
+import track.expense.splendid_backend.repository.UserProfileImageRepository;
 import track.expense.splendid_backend.repository.UserRepository;
+import track.expense.splendid_backend.service.CloudinaryService;
 import track.expense.splendid_backend.service.EmailService;
 import track.expense.splendid_backend.service.UserService;
 import track.expense.splendid_backend.security.jwt.JwtService;
 
 import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -23,6 +27,9 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final EmailService emailService;
+
+    private final UserProfileImageRepository profileImageRepository;
+    private final CloudinaryService cloudinaryService;
 
     private static final String EMAIL_REGEX = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$";
     private static final String PASSWORD_REGEX = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d@$!#%*?&]{8,}$";
@@ -204,5 +211,102 @@ public class UserServiceImpl implements UserService {
                 user.getResetPasswordExpiry().isBefore(LocalDateTime.now())) {
             throw new RuntimeException("Token expired");
         }
+    }
+
+    @Override
+    public UserProfileDto getProfile() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+
+        String profileImageUrl = profileImageRepository.findByUser(user)
+                .map(UserProfileImage::getImageUrl)
+                .orElse(null);
+        return UserProfileDto.builder()
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .role(user.getRole().name())
+                .createdAt(user.getCreatedAt())
+                .verified(user.isVerified())
+                .profileImageUrl(profileImageUrl)   // ← real URL from DB
+                .build();
+    }
+
+    @Override
+    public UserProfileDto updateProfile(UpdateProfileDto request) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (request.getFirstName() == null || request.getFirstName().isBlank()) {
+            throw new IllegalArgumentException("First name is required");
+        }
+        if (request.getLastName() == null || request.getLastName().isBlank()) {
+            throw new IllegalArgumentException("Last name is required");
+        }
+
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        userRepository.save(user);
+
+        return UserProfileDto.builder()
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .role(user.getRole().name())
+                .createdAt(user.getCreatedAt())
+                .build();
+    }
+
+    @Override
+    public void changePassword(ChangePasswordDto request) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new IllegalArgumentException("Passwords do not match");
+        }
+
+        if (!request.getNewPassword().matches(PASSWORD_REGEX)) {
+            throw new IllegalArgumentException("Password must be 8+ chars with uppercase, lowercase, and number");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+    }
+
+    @Override
+    public UserProfileDto updateProfileImage(String base64Image) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+
+        Optional<UserProfileImage> existing = profileImageRepository.findByUser(user);
+
+        // if exists, delete old image from Cloudinary first
+        existing.ifPresent(profileImage -> cloudinaryService.deleteImage(profileImage.getPublicId()));
+
+        // upload new image to Cloudinary
+        Map<String, String> uploadResult = cloudinaryService.uploadBase64Image(base64Image, "splendid/profile-images");
+
+        // save or update ProfileImage entity
+        UserProfileImage profileImage = existing.orElse(new UserProfileImage());
+        profileImage.setUser(user);
+        profileImage.setImageUrl(uploadResult.get("url"));
+        profileImage.setPublicId(uploadResult.get("publicId"));
+
+        profileImageRepository.save(profileImage);
+
+        return UserProfileDto.builder()
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .role(user.getRole().name())
+                .createdAt(user.getCreatedAt())
+                .verified(user.isVerified())
+                .profileImageUrl(uploadResult.get("url"))
+                .build();
     }
 }

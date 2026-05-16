@@ -1,8 +1,6 @@
 package track.expense.splendid_backend.service;
 
-import track.expense.splendid_backend.dto.AuthResponseDto;
-import track.expense.splendid_backend.dto.LoginRequestDto;
-import track.expense.splendid_backend.dto.RegisterRequestDto;
+import track.expense.splendid_backend.dto.*;
 
 public interface UserService {
     void register(RegisterRequestDto request);
@@ -12,4 +10,9 @@ public interface UserService {
     String verifyEmail(String token);
     String resendVerification(String email);
     void validateResetToken(String token);
+
+    UserProfileDto getProfile();
+    UserProfileDto updateProfile(UpdateProfileDto request);
+    void changePassword(ChangePasswordDto request);
+    UserProfileDto updateProfileImage(String base64Image);
 }
