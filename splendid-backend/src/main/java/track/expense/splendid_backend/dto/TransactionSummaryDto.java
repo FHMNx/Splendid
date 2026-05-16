@@ -14,4 +14,11 @@ public class TransactionSummaryDto {
     private BigDecimal totalIncome;
     private BigDecimal totalExpense;
     private BigDecimal netBalance;
+    private BigDecimal todayExpense;
+    private BigDecimal monthlyExpense;
+    private BigDecimal monthlyIncome;
+    private double todayExpenseChange;
+    private double monthlyExpenseChange;
+    private double totalIncomeChange;
+    private double monthlyIncomeChange;
 }

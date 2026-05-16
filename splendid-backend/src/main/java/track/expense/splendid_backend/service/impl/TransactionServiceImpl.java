@@ -21,6 +21,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -108,6 +110,13 @@ public class TransactionServiceImpl implements TransactionService {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
         List<Transaction> allTransactions = transactionRepository.findByUser(user);
 
+        LocalDate today = LocalDate.now();
+        LocalDate yesterday = today.minusDays(1);
+        int currentMonth = today.getMonthValue();
+        int currentYear = today.getYear();
+        int lastMonth = today.minusMonths(1).getMonthValue();
+        int lastMonthYear = today.minusMonths(1).getYear();
+
         BigDecimal totalIncome = allTransactions.stream()
                 .filter(t -> t.getType() == Transaction.TransactionType.INCOME)
                 .map(Transaction::getAmount)
@@ -118,12 +127,68 @@ public class TransactionServiceImpl implements TransactionService {
                 .map(Transaction::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        BigDecimal todayExpense = allTransactions.stream()
+                .filter(t -> t.getType() == Transaction.TransactionType.EXPENSE && t.getDate().equals(today))
+                .map(Transaction::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal yesterdayExpense = allTransactions.stream()
+                .filter(t -> t.getType() == Transaction.TransactionType.EXPENSE
+                        && t.getDate().equals(yesterday))
+                .map(Transaction::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal monthlyExpense = allTransactions.stream()
+                .filter(t -> t.getType() == Transaction.TransactionType.EXPENSE
+                        && t.getDate().getMonthValue() == currentMonth
+                        && t.getDate().getYear() == currentYear)
+                .map(Transaction::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal lastMonthExpense = allTransactions.stream()
+                .filter(t -> t.getType() == Transaction.TransactionType.EXPENSE
+                        && t.getDate().getMonthValue() == lastMonth
+                        && t.getDate().getYear() == lastMonthYear)
+                .map(Transaction::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal monthlyIncome = allTransactions.stream()
+                .filter(t -> t.getType() == Transaction.TransactionType.INCOME
+                        && t.getDate().getMonthValue() == currentMonth
+                        && t.getDate().getYear() == currentYear)
+                .map(Transaction::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal lastMonthIncome = allTransactions.stream()
+                .filter(t -> t.getType() == Transaction.TransactionType.INCOME
+                        && t.getDate().getMonthValue() == lastMonth
+                        && t.getDate().getYear() == lastMonthYear)
+                .map(Transaction::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         return TransactionSummaryDto.builder()
                 .totalTransactions((long) allTransactions.size())
                 .totalIncome(totalIncome)
                 .totalExpense(totalExpense)
                 .netBalance(totalIncome.subtract(totalExpense))
+                .todayExpense(todayExpense)
+                .monthlyExpense(monthlyExpense)
+                .monthlyIncome(monthlyIncome)
+                .todayExpenseChange(calculateChange(todayExpense, yesterdayExpense))
+                .monthlyExpenseChange(calculateChange(monthlyExpense, lastMonthExpense))
+                .totalIncomeChange(calculateChange(monthlyIncome, lastMonthIncome))
+                .monthlyIncomeChange(calculateChange(monthlyIncome, lastMonthIncome))
                 .build();
+    }
+
+    private double calculateChange(BigDecimal current, BigDecimal previous) {
+        if (previous.compareTo(BigDecimal.ZERO) == 0) {
+            return current.compareTo(BigDecimal.ZERO) > 0 ? 100.0 : 0.0;
+        }
+        return current.subtract(previous)
+                .divide(previous, 4, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100))
+                .doubleValue();
     }
 
 

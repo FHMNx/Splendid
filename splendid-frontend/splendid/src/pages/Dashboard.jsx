@@ -1,4 +1,3 @@
-import React, { useMemo, useState } from "react";
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -8,6 +7,7 @@ import {
   Plus,
   ReceiptText,
 } from "lucide-react";
+import { toast } from "react-hot-toast";
 import {
   CartesianGrid,
   Cell,
@@ -23,37 +23,9 @@ import {
 } from "recharts";
 
 import PageTitle from "../components/PageTitle";
+import { useState, useMemo, useEffect } from "react";
+import { getAllTransactions, getTransactionsSummary } from "../features/transactions/transactionAPI";
 
-const SUMMARY_CARDS = [
-  {
-    title: "Today Expense",
-    amount: "LKR 2146.00",
-    change: "-3.2%",
-    trend: "down",
-    icon: ReceiptText,
-  },
-  {
-    title: "Monthly Expense",
-    amount: "LKR 72,840.00",
-    change: "+4.8%",
-    trend: "up",
-    icon: CreditCard,
-  },
-  {
-    title: "Total Income",
-    amount: "LKR 180,420.00",
-    change: "+6.1%",
-    trend: "up",
-    icon: BanknoteArrowUp,
-  },
-  {
-    title: "Monthly Income",
-    amount: "LKR 220,960.00",
-    change: "+2.3%",
-    trend: "up",
-    icon: BanknoteArrowDown,
-  },
-];
 
 const TREND_DATA = {
   "7d": [
@@ -124,6 +96,40 @@ const FILTER_OPTIONS = [
 
 const Dashboard = () => {
   const [range, setRange] = useState("30d");
+  const [recentTransactions, setRecentTransactions] = useState([]);
+  const [isRecentLoading, setIsRecentLoading] = useState(false);
+  const [summary, setSummary] = useState(null);
+  const [isSummaryLoading, setIsSummaryLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      setIsRecentLoading(true);
+      // fetch recent transactions
+      try {
+        const response = await getAllTransactions(0, 5);
+        setRecentTransactions(response.content || []);
+      } catch (error) {
+        setRecentTransactions([]);
+        toast.error("Failed to load dashboard data. Please try again.");
+      } finally {
+        setIsRecentLoading(false);
+      }
+
+      // fetch summary data
+      setIsSummaryLoading(true);
+      try {
+        const summaryData = await getTransactionsSummary();
+        setSummary(summaryData);
+      } catch (error) {
+        setSummary(null);
+        toast.error("Failed to load dashboard summary. Please try again.");
+      } finally {
+        setIsSummaryLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
 
   const chartData = useMemo(() => {
     return TREND_DATA[range] ?? TREND_DATA["30d"];
@@ -135,8 +141,47 @@ const Dashboard = () => {
 
       <div className="space-y-6">
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {SUMMARY_CARDS.map(({ title, amount, change, trend, icon: Icon }) => {
-            const isUp = trend === "up";
+          {[
+            {
+              title: "Today Expense",
+              amount: isSummaryLoading ? "..." : `LKR ${Number(summary?.todayExpense ?? 0).toFixed(2)}`,
+              change: summary?.todayExpenseChange ?? 0,
+              compareLabel: "vs yesterday",
+              icon: ReceiptText,
+              tone: "expense",
+            },
+            {
+              title: "Monthly Expense",
+              amount: isSummaryLoading ? "..." : `LKR ${Number(summary?.monthlyExpense ?? 0).toFixed(2)}`,
+              change: summary?.monthlyExpenseChange ?? 0,
+              compareLabel: "vs last month",
+              icon: CreditCard,
+              tone: "expense",
+            },
+            {
+              title: "Total Income",
+              amount: isSummaryLoading ? "..." : `LKR ${Number(summary?.totalIncome ?? 0).toFixed(2)}`,
+              change: summary?.totalIncomeChange ?? 0,
+              compareLabel: "vs last month",
+              icon: BanknoteArrowUp,
+              tone: "income",
+            },
+            {
+              title: "Monthly Income",
+              amount: isSummaryLoading ? "..." : `LKR ${Number(summary?.monthlyIncome ?? 0).toFixed(2)}`,
+              change: summary?.monthlyIncomeChange ?? 0,
+              compareLabel: "vs last month",
+              icon: BanknoteArrowDown,
+              tone: "income",
+            },
+          ].map(({ title, amount, change, compareLabel, icon: Icon, tone }) => {
+            const isUp = change >= 0;
+
+            // for expense cards, going up is bad (red), going down is good (green)
+            // for income cards, going up is good (green), going down is bad (red)
+            const badgeGreen =
+              (tone === "expense" && !isUp) || (tone === "income" && isUp);
+
             return (
               <article
                 key={title}
@@ -149,26 +194,26 @@ const Dashboard = () => {
                   </span>
                 </div>
 
-                <p className="mt-3 text-2xl font-semibold tracking-tight text-zinc-900">
+                <p className={`mt-3 text-2xl font-semibold tracking-tight ${tone === "income" ? "text-emerald-700" : "text-red-600"
+                  }`}>
                   {amount}
                 </p>
 
                 <div className="mt-3 flex items-center gap-1.5 text-xs font-medium">
-                  <span
-                    className={`inline-flex items-center gap-1 rounded-full px-2 py-1 ${
-                      isUp
-                        ? "bg-emerald-100 text-emerald-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {isUp ? (
-                      <ArrowUpRight size={13} />
-                    ) : (
-                      <ArrowDownRight size={13} />
-                    )}
-                    {change}
-                  </span>
-                  <span className="text-zinc-500">vs previous period</span>
+                  {isSummaryLoading ? (
+                    <div className="h-5 w-20 animate-pulse rounded-full bg-zinc-200" />
+                  ) : (
+                    <>
+                      <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 ${badgeGreen
+                          ? "bg-emerald-100 text-emerald-700"
+                          : "bg-red-100 text-red-700"
+                        }`}>
+                        {isUp ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
+                        {Math.abs(change).toFixed(1)}%
+                      </span>
+                      <span className="text-zinc-500">{compareLabel}</span>
+                    </>
+                  )}
                 </div>
               </article>
             );
@@ -193,11 +238,10 @@ const Dashboard = () => {
                     key={option.value}
                     type="button"
                     onClick={() => setRange(option.value)}
-                    className={`rounded-md px-3 py-1.5 text-xs font-medium transition-all duration-200 ${
-                      range === option.value
-                        ? "bg-white text-emerald-800 shadow-sm"
-                        : "text-zinc-600 hover:text-emerald-700"
-                    }`}
+                    className={`rounded-md px-3 py-1.5 text-xs font-medium transition-all duration-200 ${range === option.value
+                      ? "bg-white text-emerald-800 shadow-sm"
+                      : "text-zinc-600 hover:text-emerald-700"
+                      }`}
                   >
                     {option.label}
                   </button>
@@ -298,24 +342,39 @@ const Dashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {RECENT_TRANSACTIONS.map((item) => (
+                {isRecentLoading && (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <tr key={i} className="border-b border-zinc-100">
+                      {Array.from({ length: 4 }).map((__, j) => (
+                        <td key={j} className="px-3 py-3">
+                          <div className="h-4 animate-pulse rounded bg-zinc-200" />
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                )}
+
+                {!isRecentLoading && recentTransactions.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="px-3 py-6 text-center text-sm text-zinc-500">
+                      No transactions yet.
+                    </td>
+                  </tr>
+                )}
+
+                {!isRecentLoading && recentTransactions.map((item) => (
                   <tr
-                    key={`${item.title}-${item.date}`}
+                    key={item.id}
                     className="border-b border-zinc-100 text-zinc-700 transition-colors hover:bg-emerald-50/40"
                   >
-                    <td className="px-3 py-3 font-medium text-zinc-900">
-                      {item.title}
-                    </td>
-                    <td className="px-3 py-3">{item.amount}</td>
+                    <td className="px-3 py-3 font-medium text-zinc-900">{item.title}</td>
+                    <td className="px-3 py-3">{`LKR ${Number(item.amount).toFixed(2)}`}</td>
                     <td className="px-3 py-3 text-zinc-500">{item.date}</td>
                     <td className="px-3 py-3">
-                      <span
-                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
-                          item.type === "Income"
-                            ? "bg-emerald-100 text-emerald-700"
-                            : "bg-red-100 text-red-700"
-                        }`}
-                      >
+                      <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${String(item.type).toLowerCase() === "income"
+                        ? "bg-emerald-100 text-emerald-700"
+                        : "bg-red-100 text-red-700"
+                        }`}>
                         {item.type}
                       </span>
                     </td>
