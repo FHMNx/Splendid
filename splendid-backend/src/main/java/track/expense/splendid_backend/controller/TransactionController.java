@@ -4,8 +4,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import track.expense.splendid_backend.dto.CategoryBreakdownDto;
 import track.expense.splendid_backend.dto.TransactionDto;
 import track.expense.splendid_backend.dto.TransactionSummaryDto;
+import track.expense.splendid_backend.dto.TrendDataDto;
 import track.expense.splendid_backend.entity.Transaction;
 import track.expense.splendid_backend.service.TransactionService;
 import org.springframework.data.domain.Page;
@@ -60,6 +62,19 @@ public class TransactionController {
     public ResponseEntity<TransactionSummaryDto> getTransactionSummery() {
         TransactionSummaryDto summary = transactionService.getTransactionSummary();
         return ResponseEntity.ok(summary);
+    }
+
+    @GetMapping("/trend")
+    public ResponseEntity<List<TrendDataDto>> getTransactionTrend(
+            @RequestParam(defaultValue = "30d") String range) {
+        List<TrendDataDto> trend = transactionService.getTransactionTrend(range);
+        return ResponseEntity.ok(trend);
+    }
+
+    @GetMapping("/category-breakdown")
+    public ResponseEntity<List<CategoryBreakdownDto>> getCategoryBreakdown() {
+        List<CategoryBreakdownDto> breakdown = transactionService.getCategoryBreakdown();
+        return ResponseEntity.ok(breakdown);
     }
 
 }

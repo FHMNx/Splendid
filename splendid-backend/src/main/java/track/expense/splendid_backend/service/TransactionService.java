@@ -1,8 +1,10 @@
 package track.expense.splendid_backend.service;
 
 import org.springframework.data.domain.Page;
+import track.expense.splendid_backend.dto.CategoryBreakdownDto;
 import track.expense.splendid_backend.dto.TransactionDto;
 import track.expense.splendid_backend.dto.TransactionSummaryDto;
+import track.expense.splendid_backend.dto.TrendDataDto;
 
 import java.util.List;
 
@@ -19,5 +21,8 @@ public interface TransactionService {
     void deleteTransaction(Long transactionId);
 
     TransactionSummaryDto getTransactionSummary();
+
+    List<TrendDataDto> getTransactionTrend(String range);
+    List<CategoryBreakdownDto> getCategoryBreakdown();
 
 }

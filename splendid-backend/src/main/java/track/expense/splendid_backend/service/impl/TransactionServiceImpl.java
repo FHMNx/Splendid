@@ -4,8 +4,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import track.expense.splendid_backend.dto.CategoryBreakdownDto;
 import track.expense.splendid_backend.dto.TransactionDto;
 import track.expense.splendid_backend.dto.TransactionSummaryDto;
+import track.expense.splendid_backend.dto.TrendDataDto;
 import track.expense.splendid_backend.entity.Category;
 import track.expense.splendid_backend.entity.Transaction;
 import track.expense.splendid_backend.entity.User;
@@ -23,7 +25,10 @@ import org.springframework.data.domain.Pageable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -189,6 +194,136 @@ public class TransactionServiceImpl implements TransactionService {
                 .divide(previous, 4, RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf(100))
                 .doubleValue();
+    }
+
+
+    @Override
+    public List<TrendDataDto> getTransactionTrend(String range) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        List<Transaction> all = transactionRepository.findByUser(user);
+        LocalDate today = LocalDate.now();
+
+        // filter transactions by range
+        List<Transaction> filtered = all.stream()
+                .filter(t -> {
+                    return switch (range) {
+                        case "7d" -> !t.getDate().isBefore(today.minusDays(6));
+                        case "3m" -> !t.getDate().isBefore(today.minusMonths(3).withDayOfMonth(1));
+                        default -> !t.getDate().isBefore(today.withDayOfMonth(1)); // 30d = this month
+                    };
+                })
+                .toList();
+        Map<String, TrendDataDto> grouped = new LinkedHashMap<>();
+
+        if (range.equals("7d")) {
+            // last 7 days — label = day name (Mon, Tue...)
+            for (int i = 6; i >= 0; i--) {
+                LocalDate date = today.minusDays(i);
+                String label = date.getDayOfWeek()
+                        .getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.ENGLISH);
+                grouped.put(date.toString(), TrendDataDto.builder()
+                        .label(label).income(0).expense(0).build());
+            }
+
+            filtered.forEach(t -> {
+                String key = t.getDate().toString();
+                if (grouped.containsKey(key)) {
+                    TrendDataDto dto = grouped.get(key);
+                    double amount = t.getAmount().doubleValue();
+                    if (t.getType() == Transaction.TransactionType.INCOME) {
+                        dto.setIncome(dto.getIncome() + amount);
+                    } else {
+                        dto.setExpense(dto.getExpense() + amount);
+                    }
+                }
+            });
+
+        } else if (range.equals("30d")) {
+            // this month — label = W1, W2, W3, W4
+            for (int week = 1; week <= 4; week++) {
+                String key = "W" + week;
+                grouped.put(key, TrendDataDto.builder()
+                        .label(key).income(0).expense(0).build());
+            }
+
+            filtered.forEach(t -> {
+                int weekNum = Math.min((t.getDate().getDayOfMonth() - 1) / 7 + 1, 4);
+                String key = "W" + weekNum;
+                TrendDataDto dto = grouped.get(key);
+                double amount = t.getAmount().doubleValue();
+                if (t.getType() == Transaction.TransactionType.INCOME) {
+                    dto.setIncome(dto.getIncome() + amount);
+                } else {
+                    dto.setExpense(dto.getExpense() + amount);
+                }
+            });
+
+        } else {
+            // 3m — label = month name (Jan, Feb, Mar)
+            for (int i = 2; i >= 0; i--) {
+                LocalDate month = today.minusMonths(i).withDayOfMonth(1);
+                String label = month.getMonth()
+                        .getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.ENGLISH);
+                String key = month.getYear() + "-" + month.getMonthValue();
+                grouped.put(key, TrendDataDto.builder()
+                        .label(label).income(0).expense(0).build());
+            }
+
+            filtered.forEach(t -> {
+                String key = t.getDate().getYear() + "-" + t.getDate().getMonthValue();
+                if (grouped.containsKey(key)) {
+                    TrendDataDto dto = grouped.get(key);
+                    double amount = t.getAmount().doubleValue();
+                    if (t.getType() == Transaction.TransactionType.INCOME) {
+                        dto.setIncome(dto.getIncome() + amount);
+                    } else {
+                        dto.setExpense(dto.getExpense() + amount);
+                    }
+                }
+            });
+        }
+
+        return new ArrayList<>(grouped.values());
+    }
+
+    @Override
+    public List<CategoryBreakdownDto> getCategoryBreakdown() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        List<Transaction> all = transactionRepository.findByUser(user);
+
+        LocalDate today = LocalDate.now();
+        int currentMonth = today.getMonthValue();
+        int currentYear = today.getYear();
+
+        // only this month's expenses
+        Map<String, Double> categoryTotals = all.stream()
+                .filter(t -> t.getType() == Transaction.TransactionType.EXPENSE
+                        && t.getDate().getMonthValue() == currentMonth
+                        && t.getDate().getYear() == currentYear
+                        && t.getCategory() != null)
+                .collect(Collectors.groupingBy(
+                        t -> t.getCategory().getName(),
+                        Collectors.summingDouble(t -> t.getAmount().doubleValue())
+                ));
+
+        double total = categoryTotals.values().stream()
+                .mapToDouble(Double::doubleValue).sum();
+
+        if (total == 0) return List.of();
+
+        return categoryTotals.entrySet().stream()
+                .map(entry -> CategoryBreakdownDto.builder()
+                        .name(entry.getKey())
+                        .value(Math.round((entry.getValue() / total) * 100.0 * 10.0) / 10.0)
+                        .build())
+                .sorted((a, b) -> Double.compare(b.getValue(), a.getValue()))
+                .collect(Collectors.toList());
     }
 
 

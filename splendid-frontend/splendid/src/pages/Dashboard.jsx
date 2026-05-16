@@ -24,68 +24,12 @@ import {
 
 import PageTitle from "../components/PageTitle";
 import { useState, useMemo, useEffect } from "react";
-import { getAllTransactions, getTransactionsSummary } from "../features/transactions/transactionAPI";
+import { getAllTransactions, getTransactionsSummary, getTransactionTrend, getCategoryBreakdown } from "../features/transactions/transactionAPI";
 
 
-const TREND_DATA = {
-  "7d": [
-    { label: "Mon", expense: 120, income: 240 },
-    { label: "Tue", expense: 160, income: 290 },
-    { label: "Wed", expense: 110, income: 260 },
-    { label: "Thu", expense: 180, income: 320 },
-    { label: "Fri", expense: 150, income: 300 },
-    { label: "Sat", expense: 90, income: 210 },
-    { label: "Sun", expense: 130, income: 280 },
-  ],
-  "30d": [
-    { label: "W1", expense: 820, income: 1400 },
-    { label: "W2", expense: 760, income: 1320 },
-    { label: "W3", expense: 910, income: 1500 },
-    { label: "W4", expense: 840, income: 1420 },
-  ],
-  "3m": [
-    { label: "Jan", expense: 2820, income: 4600 },
-    { label: "Feb", expense: 2680, income: 4380 },
-    { label: "Mar", expense: 2940, income: 4820 },
-  ],
-};
-
-const CATEGORY_DATA = [
-  { name: "Food", value: 38 },
-  { name: "Travel", value: 22 },
-  { name: "Bills", value: 18 },
-  { name: "Shopping", value: 12 },
-  { name: "Other", value: 10 },
-];
-
-const CATEGORY_COLORS = ["#047857", "#059669", "#10b981", "#34d399", "#6ee7b7"];
-
-const RECENT_TRANSACTIONS = [
-  {
-    title: "Starbucks",
-    amount: "$18.50",
-    date: "Apr 22, 2026",
-    type: "Expense",
-  },
-  {
-    title: "Salary",
-    amount: "$2,450.00",
-    date: "Apr 20, 2026",
-    type: "Income",
-  },
-  { title: "Uber", amount: "$12.40", date: "Apr 19, 2026", type: "Expense" },
-  {
-    title: "Freelance Project",
-    amount: "$620.00",
-    date: "Apr 18, 2026",
-    type: "Income",
-  },
-  {
-    title: "Electricity Bill",
-    amount: "$74.30",
-    date: "Apr 16, 2026",
-    type: "Expense",
-  },
+const CATEGORY_COLORS = [
+  "#047857", "#059669", "#10b981", "#34d399",
+  "#6ee7b7", "#f59e0b", "#3b82f6", "#8b5cf6", "#ec4899",
 ];
 
 const FILTER_OPTIONS = [
@@ -100,6 +44,27 @@ const Dashboard = () => {
   const [isRecentLoading, setIsRecentLoading] = useState(false);
   const [summary, setSummary] = useState(null);
   const [isSummaryLoading, setIsSummaryLoading] = useState(false);
+
+  //CHART DATA STATES
+  const [trendData, setTrendData] = useState([]);
+  const [isTrendLoading, setIsTrendLoading] = useState(false);
+  const [categoryData, setCategoryData] = useState([]);
+  const [isCategoryLoading, setIsCategoryLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchTrend = async () => {
+      setIsTrendLoading(true);
+      try {
+        const data = await getTransactionTrend(range);
+        setTrendData(data);
+      } catch {
+        setTrendData([]);
+      } finally {
+        setIsTrendLoading(false);
+      }
+    };
+    fetchTrend();
+  }, [range]);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -126,14 +91,24 @@ const Dashboard = () => {
       } finally {
         setIsSummaryLoading(false);
       }
+
+
+      // fetch category breakdown
+      setIsCategoryLoading(true);
+      try {
+        const categoryData = await getCategoryBreakdown();
+        setCategoryData(categoryData);
+      } catch (error) {
+        setCategoryData([]);
+        toast.error("Failed to load category breakdown. Please try again.");
+      } finally {
+        setIsCategoryLoading(false);
+      }
+
     };
 
     fetchDashboardData();
   }, []);
-
-  const chartData = useMemo(() => {
-    return TREND_DATA[range] ?? TREND_DATA["30d"];
-  }, [range]);
 
   return (
     <>
@@ -205,8 +180,8 @@ const Dashboard = () => {
                   ) : (
                     <>
                       <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 ${badgeGreen
-                          ? "bg-emerald-100 text-emerald-700"
-                          : "bg-red-100 text-red-700"
+                        ? "bg-emerald-100 text-emerald-700"
+                        : "bg-red-100 text-red-700"
                         }`}>
                         {isUp ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
                         {Math.abs(change).toFixed(1)}%
@@ -250,36 +225,29 @@ const Dashboard = () => {
             </div>
 
             <div className="h-72 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis
-                    dataKey="label"
-                    tick={{ fontSize: 12, fill: "#52525b" }}
-                  />
-                  <YAxis tick={{ fontSize: 12, fill: "#52525b" }} />
-                  <Tooltip />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="expense"
-                    name="Expense"
-                    stroke="#ef4444"
-                    strokeWidth={2.5}
-                    dot={{ r: 3 }}
-                    activeDot={{ r: 5 }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="income"
-                    name="Income"
-                    stroke="#059669"
-                    strokeWidth={2.5}
-                    dot={{ r: 3 }}
-                    activeDot={{ r: 5 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              {isTrendLoading ? (
+                <div className="flex h-full items-center justify-center">
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-700" />
+                </div>
+              ) : trendData.length === 0 ? (
+                <div className="flex h-full items-center justify-center text-sm text-zinc-400">
+                  No data for this period.
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={trendData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="label" tick={{ fontSize: 12, fill: "#52525b" }} />
+                    <YAxis tick={{ fontSize: 12, fill: "#52525b" }} />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="expense" name="Expense"
+                      stroke="#ef4444" strokeWidth={2.5} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+                    <Line type="monotone" dataKey="income" name="Income"
+                      stroke="#059669" strokeWidth={2.5} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </article>
 
@@ -292,29 +260,39 @@ const Dashboard = () => {
             </div>
 
             <div className="mt-4 h-72 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={CATEGORY_DATA}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={90}
-                    innerRadius={50}
-                    paddingAngle={2}
-                  >
-                    {CATEGORY_DATA.map((entry, index) => (
-                      <Cell
-                        key={`${entry.name}-${index}`}
-                        fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+              {isCategoryLoading ? (
+                <div className="flex h-full items-center justify-center">
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-700" />
+                </div>
+              ) : categoryData.length === 0 ? (
+                <div className="flex h-full items-center justify-center text-sm text-zinc-400">
+                  No expense data this month.
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={categoryData}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={90}
+                      innerRadius={50}
+                      paddingAngle={2}
+                    >
+                      {categoryData.map((entry, index) => (
+                        <Cell
+                          key={`${entry.name}-${index}`}
+                          fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value) => `${value}%`} />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </article>
         </section>

@@ -39,3 +39,14 @@ export const getTransactionsSummary = async () => {
   const response = await api.get("/transactions/summary");
   return response.data;
 }
+
+
+export const getTransactionTrend = async (range = "30d") => {
+  const response = await api.get(`/transactions/trend?range=${range}`);
+  return response.data;
+};
+
+export const getCategoryBreakdown = async () => {
+  const response = await api.get(`/transactions/category-breakdown`);
+  return response.data;
+};
