@@ -8,15 +8,26 @@ import {
   User,
 } from "lucide-react";
 import splendidLogo from "../../assets/splendid.png";
+import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 
 const Header = ({
   title = "Splendid",
   onToggleSidebar,
-  userName = "Abdullah Fahmaan",
-  userAvatar = "https://i.pravatar.cc/80?img=12",
+  userName = "User",
+  userAvatar = null,
 }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef(null);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogOut = async () => {
+    logout();
+    toast.success("Logged out successfully");
+    navigate("/login");
+  }
 
   useEffect(() => {
     const handleOutsideClick = (event) => {
@@ -125,18 +136,16 @@ const Header = ({
               </span>
               <ChevronDown
                 size={16}
-                className={`hidden text-zinc-500 transition-transform duration-200 sm:block ${
-                  isProfileOpen ? "rotate-180" : ""
-                }`}
+                className={`hidden text-zinc-500 transition-transform duration-200 sm:block ${isProfileOpen ? "rotate-180" : ""
+                  }`}
               />
             </button>
 
             <div
-              className={`absolute right-0 mt-2 w-48 origin-top-right rounded-lg border border-emerald-100 bg-white p-1.5 shadow-lg transition-all duration-200 ${
-                isProfileOpen
+              className={`absolute right-0 mt-2 w-48 origin-top-right rounded-lg border border-emerald-100 bg-white p-1.5 shadow-lg transition-all duration-200 ${isProfileOpen
                   ? "pointer-events-auto translate-y-0 opacity-100"
                   : "pointer-events-none -translate-y-1 opacity-0"
-              }`}
+                }`}
               role="menu"
               aria-label="Profile menu"
             >
@@ -151,6 +160,7 @@ const Header = ({
               </a>
               <button
                 type="button"
+                onClick={handleLogOut}
                 className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-zinc-700 transition-colors duration-150 hover:bg-emerald-50 hover:text-emerald-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                 role="menuitem"
               >

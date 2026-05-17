@@ -8,9 +8,20 @@ import {
   ChevronDown,
 } from "lucide-react";
 import splendidLogo from "../../assets/splendid.png";
+import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 
 const Sidebar = ({ isMobileOpen = false, onClose = () => {} }) => {
   const [isTransactionsOpen, setIsTransactionsOpen] = useState(false);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogOut = async () =>{
+    logout();
+    toast.success("Logged out successfully");
+    navigate("/login");
+  }
 
   const transactionSubmenu = [
     { label: "View Transactions", to: "/dashboard/transactions" },
@@ -134,6 +145,7 @@ const Sidebar = ({ isMobileOpen = false, onClose = () => {} }) => {
       <div className="border-t border-emerald-100 p-4">
         <button
           type="button"
+          onClick={handleLogOut}
           className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-zinc-800 transition-all duration-200 hover:bg-zinc-900 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
         >
           <LogOut size={18} />

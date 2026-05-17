@@ -1,16 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Pencil,
-  Plus,
-  Search,
-  Trash2,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, Loader2, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import EditTransactionModal from "../components/transactions/EditTransactionModal";
 import PageTitle from "../components/PageTitle";
-import { getAllTransactions, deleteTransaction, updateTransaction, getTransactionsSummary } from "../features/transactions/transactionAPI";
+import { getAllTransactions, deleteTransaction, updateTransaction, getTransactionsSummary, getAllTransactionsForExport } from "../features/transactions/transactionAPI";
 import { toast } from "react-hot-toast";
+import { exportToCSV, generateExportFilename } from "../utils/exportUtils";
 
 
 
@@ -96,10 +90,42 @@ const Transactions = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
+  const [isExporting, setIsExporting] = useState(false);
+
   const [transactionToDelete, setTransactionToDelete] = useState(null);
 
   const [apiTotalPages, setApiTotalPages] = useState(1);
   const [totalTransactions, setTotalTransactions] = useState(0);
+
+
+
+  //FILE EXPORT AS CSV
+  const exportHandler = async () => {
+    setIsExporting(true);
+    try {
+      const response = await getAllTransactionsForExport();
+      const allTransactions = response.content || [];
+
+      if (allTransactions.length === 0) {
+        toast.error("No transactions to export");
+        return;
+      }
+
+      const success = exportToCSV(allTransactions, generateExportFilename());
+      if (success) {
+        toast.success("Transactions exported successfully");
+      } else {
+        toast.error("Failed to export transactions");
+      }
+
+    } catch (error) {
+      console.log("Export error:", error);  
+      toast.error("An error occurred while exporting transactions");
+    } finally {
+      setIsExporting(false);
+    }
+  }
+
 
   const [summary, setSummary] = useState({
     totalTransactions: 0,
@@ -161,7 +187,7 @@ const Transactions = () => {
         const query = search.trim().toLowerCase();
 
         const matchesSearch = query.length === 0 || item.title.toLowerCase().includes(query) || item.notes?.toLowerCase().includes(query);
-        const matchesType = typeFilter === "All" || item.type.toUpperCase() === typeFilter.toUpperCase();;
+        const matchesType = typeFilter === "All" || item.type.toUpperCase() === typeFilter.toUpperCase();
         const matchesCategory = categoryFilter === "All" || item.categoryName === categoryFilter;
 
         const dateValue = new Date(item.date).getTime();
@@ -291,6 +317,7 @@ const Transactions = () => {
 
       <div className="space-y-6">
         <section className="rounded-xl border border-emerald-100 bg-white p-4 shadow-sm sm:p-5">
+
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 className="text-2xl font-semibold tracking-tight text-zinc-900">
@@ -301,14 +328,36 @@ const Transactions = () => {
               </p>
             </div>
 
-            <a
-              type="button"
-              href="/dashboard/transactions/add"
-              className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-600"
-            >
-              <Plus size={16} />
-              Add Transactions
-            </a>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={exportHandler}
+                disabled={isExporting}
+                className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-white px-4 py-2 text-sm font-medium text-emerald-700 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isExporting ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    Exporting...
+                  </>
+                ) : (
+                  <>
+                    <Download size={16} />
+                    Export CSV
+                  </>
+                )}
+              </button>
+
+              <a
+                href="/dashboard/transactions/add"
+                className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-600"
+              >
+                <Plus size={16} />
+                Add Transaction
+              </a>
+            </div>
+
+
           </div>
 
           <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">

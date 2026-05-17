@@ -13,21 +13,16 @@ const Profile = () => {
   const fileInputRef = useRef(null);
   const [profileImage, setProfileImage] = useState(null);
 
-  // profile data from backend
   const [profile, setProfile] = useState(null);
   const [isProfileLoading, setIsProfileLoading] = useState(true);
-
-  // summary stats
   const [stats, setStats] = useState(null);
 
-  // edit profile form
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
   });
   const [isSavingProfile, setIsSavingProfile] = useState(false);
 
-  // change password form
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
@@ -35,7 +30,7 @@ const Profile = () => {
   });
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-  // fetch profile and summary on mount
+  // fetch profile and summary
   useEffect(() => {
     const fetchData = async () => {
       setIsProfileLoading(true);
@@ -71,7 +66,7 @@ const Profile = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // validate size — Cloudinary free tier has limits
+    // validate size
     if (file.size > 5 * 1024 * 1024) {
       toast.error("Image must be smaller than 5MB");
       return;
@@ -84,11 +79,11 @@ const Profile = () => {
     // convert to base64
     const reader = new FileReader();
     reader.onloadend = async () => {
-      const base64 = reader.result; // data:image/jpeg;base64,...
+      const base64 = reader.result;
       try {
         const res = await updateProfileImage(base64);
         setProfile(res.data);
-        setProfileImage(res.data.profileImageUrl); // use Cloudinary URL
+        setProfileImage(res.data.profileImageUrl);
         toast.success("Profile photo updated");
       } catch (error) {
         console.error("Upload error:", error);

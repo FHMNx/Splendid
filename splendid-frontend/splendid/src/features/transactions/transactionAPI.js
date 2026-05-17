@@ -50,3 +50,9 @@ export const getCategoryBreakdown = async () => {
   const response = await api.get(`/transactions/category-breakdown`);
   return response.data;
 };
+
+// GET all transactions for CSV export
+export const getAllTransactionsForExport  = async () =>{
+  const response = await api.get(`/transactions/all?page=0&size=10000`);
+  return response.data;
+}
