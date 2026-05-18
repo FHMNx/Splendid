@@ -6,18 +6,19 @@ import {
   User,
   LogOut,
   ChevronDown,
+  Target,
 } from "lucide-react";
 import splendidLogo from "../../assets/splendid.png";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 
-const Sidebar = ({ isMobileOpen = false, onClose = () => {} }) => {
+const Sidebar = ({ isMobileOpen = false, onClose = () => { } }) => {
   const [isTransactionsOpen, setIsTransactionsOpen] = useState(false);
   const { logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogOut = async () =>{
+  const handleLogOut = async () => {
     logout();
     toast.success("Logged out successfully");
     navigate("/login");
@@ -35,9 +36,8 @@ const Sidebar = ({ isMobileOpen = false, onClose = () => {} }) => {
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-emerald-200 bg-white shadow-sm transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${
-        isMobileOpen ? "translate-x-0" : "-translate-x-full"
-      }`}
+      className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-emerald-200 bg-white shadow-sm transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${isMobileOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
       aria-label="Sidebar navigation"
     >
       <div className="flex items-center justify-between border-b border-emerald-100 px-5 py-5">
@@ -91,18 +91,16 @@ const Sidebar = ({ isMobileOpen = false, onClose = () => {} }) => {
             </span>
             <ChevronDown
               size={16}
-              className={`transition-transform duration-200 ${
-                isTransactionsOpen ? "rotate-180" : ""
-              }`}
+              className={`transition-transform duration-200 ${isTransactionsOpen ? "rotate-180" : ""
+                }`}
             />
           </button>
 
           <div
-            className={`grid overflow-hidden transition-all duration-300 ease-in-out ${
-              isTransactionsOpen
-                ? "mt-1 grid-rows-[1fr] opacity-100"
-                : "grid-rows-[0fr] opacity-0"
-            }`}
+            className={`grid overflow-hidden transition-all duration-300 ease-in-out ${isTransactionsOpen
+              ? "mt-1 grid-rows-[1fr] opacity-100"
+              : "grid-rows-[0fr] opacity-0"
+              }`}
           >
             <div className="space-y-1 overflow-hidden pl-6">
               {transactionSubmenu.map(({ label, to }) => (
@@ -112,10 +110,9 @@ const Sidebar = ({ isMobileOpen = false, onClose = () => {} }) => {
                   end
                   onClick={onClose}
                   className={({ isActive }) =>
-                    `block rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${
-                      isActive
-                        ? "bg-emerald-100 hover:bg-emerald-200"
-                        : "text-zinc-700 hover:bg-emerald-100 hover:text-emerald-900"
+                    `block rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${isActive
+                      ? "bg-emerald-100 hover:bg-emerald-200"
+                      : "text-zinc-700 hover:bg-emerald-100 hover:text-emerald-900"
                     }`
                   }
                 >
@@ -125,6 +122,24 @@ const Sidebar = ({ isMobileOpen = false, onClose = () => {} }) => {
             </div>
           </div>
         </div>
+
+
+        <NavLink
+          to="/dashboard/budgets"
+          end
+          onClick={onClose}
+          className={({ isActive }) =>
+            `${linkBaseClass} ${isActive ? linkActiveClass : ""}`
+          }
+        >
+
+          <Target
+            size={18}
+            className="transition-transform duration-200 group-hover:translate-x-0.5"
+          />
+          <span>Budget Goals</span>
+
+        </NavLink>
 
         <NavLink
           to="/dashboard/profile"

@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
-import { Routes, Route } from "react-router-dom";
+import { Navigate, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
@@ -10,6 +10,7 @@ import DashboardLayout from "./components/layout/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import Transactions from "./pages/Transactions";
 import Profile from "./pages/Profile";
+import Budget from "./pages/Budget";
 import TransactionForm from "./pages/TransactionForm";
 import EditTransactionModal from "./components/transactions/EditTransactionModal";
 import { Toaster } from "react-hot-toast";
@@ -45,6 +46,8 @@ const App = () => {
             </Route>
 
             <Route path="profile" element={<Profile />} />
+            <Route path="budgets" element={<Budget />} />
+            <Route path="budget" element={<Navigate to="/dashboard/budgets" replace />} />
           </Route>
         </Route>
 

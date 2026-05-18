@@ -25,6 +25,7 @@ import {
 import PageTitle from "../components/PageTitle";
 import { useState, useMemo, useEffect } from "react";
 import { getAllTransactions, getTransactionsSummary, getTransactionTrend, getCategoryBreakdown } from "../features/transactions/transactionAPI";
+import { getBudgets } from "../features/budget/budgetAPI";
 
 
 const CATEGORY_COLORS = [
@@ -50,6 +51,9 @@ const Dashboard = () => {
   const [isTrendLoading, setIsTrendLoading] = useState(false);
   const [categoryData, setCategoryData] = useState([]);
   const [isCategoryLoading, setIsCategoryLoading] = useState(false);
+
+  //BUDGET DATA
+  const [budgets, setBudgets] = useState([]);
 
   useEffect(() => {
     const fetchTrend = async () => {
@@ -78,6 +82,16 @@ const Dashboard = () => {
         toast.error("Failed to load dashboard data. Please try again.");
       } finally {
         setIsRecentLoading(false);
+      }
+
+      //fetch current month budgets
+      try {
+        const now = new Date();
+        const budgetResponse = await getBudgets(now.getMonth() + 1, now.getFullYear());
+        setBudgets(budgetResponse.data || []);
+      } catch (error) {
+        setBudgets([]);
+        toast.error("Failed to load budget data. Please try again.");
       }
 
       // fetch summary data
@@ -195,6 +209,7 @@ const Dashboard = () => {
           })}
         </section>
 
+
         <section className="grid grid-cols-1 gap-6 xl:grid-cols-3">
           <article className="rounded-xl border border-emerald-100 bg-white p-4 shadow-sm xl:col-span-2">
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -297,6 +312,53 @@ const Dashboard = () => {
           </article>
         </section>
 
+        {budgets.length > 0 && (
+          <section className="rounded-xl border border-emerald-100 bg-white p-4 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-semibold text-zinc-900">Budget Overview</h3>
+                <p className="text-sm text-zinc-500">This month's spending vs limits</p>
+              </div>
+
+              <a
+                href="/dashboard/budgets"
+                className="text-xs font-medium text-emerald-700 hover:underline"
+              >
+                Manage budgets →
+              </a>
+            </div>
+
+            <div className="space-y-3">
+              {budgets.map((budget) => {
+                const clampedPct = Math.min(budget.percentage, 100);
+                const barColor =
+                  budget.status === "OVER"
+                    ? "bg-red-500"
+                    : budget.status === "WARNING"
+                      ? "bg-yellow-400"
+                      : "bg-emerald-500";
+
+                return (
+                  <div key={budget.id}>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-medium text-zinc-700">{budget.categoryName}</span>
+                      <span className="text-zinc-500">
+                        LKR {Number(budget.spentAmount).toFixed(0)} / {Number(budget.limitAmount).toFixed(0)}
+                      </span>
+                    </div>
+                    <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-zinc-100">
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ${barColor}`}
+                        style={{ width: `${clampedPct}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
         <section className="rounded-xl border border-emerald-100 bg-white p-4 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <div>
@@ -363,14 +425,14 @@ const Dashboard = () => {
           </div>
         </section>
 
-        <button
-          type="button"
+        <a
+          href="/dashboard/transactions/add"
           className="fixed bottom-6 right-6 inline-flex items-center gap-2 rounded-full bg-emerald-700 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-900/20 transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
         >
           <Plus size={17} />
           Add Transaction
-        </button>
-      </div>
+        </a>
+      </div >
     </>
   );
 };
