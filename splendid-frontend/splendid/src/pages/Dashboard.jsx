@@ -6,6 +6,7 @@ import {
   CreditCard,
   Plus,
   ReceiptText,
+  MessageCircle,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import {
@@ -26,6 +27,7 @@ import PageTitle from "../components/PageTitle";
 import { useState, useMemo, useEffect } from "react";
 import { getAllTransactions, getTransactionsSummary, getTransactionTrend, getCategoryBreakdown } from "../features/transactions/transactionAPI";
 import { getBudgets } from "../features/budget/budgetAPI";
+import AIChatPanel from "../components/AIChatPanel";
 
 
 const CATEGORY_COLORS = [
@@ -54,6 +56,9 @@ const Dashboard = () => {
 
   //BUDGET DATA
   const [budgets, setBudgets] = useState([]);
+
+  // AI CHAT
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   useEffect(() => {
     const fetchTrend = async () => {
@@ -123,6 +128,18 @@ const Dashboard = () => {
 
     fetchDashboardData();
   }, []);
+
+
+  // financial context for AI assistant
+  const financialContext = {
+    totalIncome: Number(summary?.totalIncome ?? 0).toFixed(2),
+    totalExpense: Number(summary?.totalExpense ?? 0).toFixed(2),
+    netBalance: Number(summary?.netBalance ?? 0).toFixed(2),
+    monthlyIncome: Number(summary?.monthlyIncome ?? 0).toFixed(2),
+    monthlyExpense: Number(summary?.monthlyExpense ?? 0).toFixed(2),
+    todayExpense: Number(summary?.todayExpense ?? 0).toFixed(2),
+    budgets,
+  };
 
   return (
     <>
@@ -425,13 +442,38 @@ const Dashboard = () => {
           </div>
         </section>
 
-        <a
-          href="/dashboard/transactions/add"
-          className="fixed bottom-6 right-6 inline-flex items-center gap-2 rounded-full bg-emerald-700 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-900/20 transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
-        >
-          <Plus size={17} />
-          Add Transaction
-        </a>
+        {/* Floating buttons */}
+        <div className="fixed bottom-6 right-6 flex flex-col items-end gap-3">
+
+          {/* AI Chat Button */}
+          <button
+            type="button"
+            onClick={() => setIsChatOpen((prev) => !prev)}
+            className={`inline-flex items-center gap-2 rounded-full px-4 py-3 text-sm font-semibold shadow-lg transition-all duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${isChatOpen
+              ? "bg-zinc-800 text-white shadow-zinc-900/20 hover:bg-zinc-700"
+              : "bg-white border border-emerald-200 text-emerald-700 shadow-emerald-900/10 hover:bg-emerald-50"
+              }`}
+          >
+            <MessageCircle size={17} />
+            {isChatOpen ? "Close Chat" : "Ask Penny"}
+          </button>
+
+          {/* Add Transaction Button */}
+
+          <a href="/dashboard/transactions/add"
+            className="inline-flex items-center gap-2 rounded-full bg-emerald-700 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-900/20 transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
+
+            <Plus size={17} />
+            Add Transaction
+          </a>
+        </div>
+
+        {/* AI Chat Panel */}
+        <AIChatPanel
+          isOpen={isChatOpen}
+          onClose={() => setIsChatOpen(false)}
+          financialContext={financialContext}
+        />
       </div >
     </>
   );
