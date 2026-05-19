@@ -4,14 +4,69 @@ import {
   ChevronDown,
   Menu,
   MessageSquare,
-  Search,
   User,
+  LogOut,
 } from "lucide-react";
 import splendidLogo from "../../assets/splendid.png";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { useSubscription } from "../../context/SubscriptionContext";
 
+//Subscription Countdown 
+const SubscriptionCountdown = () => {
+  const { subscription, plan, isActive } = useSubscription();
+  const [timeLeft, setTimeLeft] = useState(null);
+
+  useEffect(() => {
+    if (!subscription || !isActive) return;
+
+    const calculate = () => {
+      const end = new Date(subscription.endDate);
+      end.setHours(23, 59, 59, 999);
+      const diff = end - new Date();
+
+      if (diff <= 0) {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        return;
+      }
+
+      setTimeLeft({
+        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((diff % (1000 * 60)) / 1000),
+      });
+    };
+
+    calculate();
+    const interval = setInterval(calculate, 1000);
+    return () => clearInterval(interval);
+  }, [subscription, isActive]);
+
+  if (!subscription || !isActive || !timeLeft) return null;
+
+  const daysLeft = subscription.daysRemaining ?? 0;
+
+  const colorClass =
+    daysLeft <= 1 ? "text-red-500" :
+      daysLeft <= 3 ? "text-amber-500" : "text-emerald-600";
+
+  const pad = (n) => String(n).padStart(2, "0");
+
+  return (
+    <div className="hidden items-center gap-1.5 md:flex">
+      <span className="text-sm text-zinc-400">
+        Your subscription expires in
+      </span>
+      <span className={`font-mono text-xs font-semibold ${colorClass}`}>
+        {pad(timeLeft.days)}D : {pad(timeLeft.hours)}H : {pad(timeLeft.minutes)}M : {pad(timeLeft.seconds)}S
+      </span>
+    </div>
+  );
+};
+
+//Header
 const Header = ({
   title = "Splendid",
   onToggleSidebar,
@@ -23,28 +78,24 @@ const Header = ({
   const { logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogOut = async () => {
+  const handleLogOut = () => {
     logout();
     toast.success("Logged out successfully");
     navigate("/login");
-  }
+  };
 
   useEffect(() => {
-    const handleOutsideClick = (event) => {
-      if (profileRef.current && !profileRef.current.contains(event.target)) {
+    const handleOutsideClick = (e) => {
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
         setIsProfileOpen(false);
       }
     };
-
-    const handleEscape = (event) => {
-      if (event.key === "Escape") {
-        setIsProfileOpen(false);
-      }
+    const handleEscape = (e) => {
+      if (e.key === "Escape") setIsProfileOpen(false);
     };
 
     document.addEventListener("mousedown", handleOutsideClick);
     document.addEventListener("keydown", handleEscape);
-
     return () => {
       document.removeEventListener("mousedown", handleOutsideClick);
       document.removeEventListener("keydown", handleEscape);
@@ -53,7 +104,9 @@ const Header = ({
 
   return (
     <header className="sticky top-0 z-20 w-full border-b border-emerald-100 bg-white shadow-sm">
-      <div className="flex flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
+      <div className="flex items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
+
+        {/* Left — logo + title */}
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <button
             type="button"
@@ -64,49 +117,31 @@ const Header = ({
             <Menu size={18} />
           </button>
 
-          <div className="min-w-0">
-            <div className="flex items-center gap-1">
-              <img
-                src={splendidLogo}
-                alt="Splendid logo"
-                className="h-8 w-8 object-contain"
-              />
-              <h1 className="text-lg font-semibold tracking-tight text-emerald-900 sm:text-xl">
-                {title}
-              </h1>
-            </div>
+          <div className="flex items-center gap-1.5">
+            <img
+              src={splendidLogo}
+              alt="Splendid logo"
+              className="h-8 w-8 object-contain"
+            />
+            <h1 className="text-lg font-semibold tracking-tight text-emerald-900 sm:text-xl">
+              {title}
+            </h1>
           </div>
         </div>
 
-        <div className="order-3 w-full md:order-0 md:w-auto md:flex-1 md:justify-center">
-          <label
-            className="relative block w-full md:mx-auto md:max-w-md"
-            aria-label="Search transactions"
-          >
-            <Search
-              size={16}
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-emerald-700/70"
-            />
-            <input
-              type="text"
-              placeholder="Search transactions..."
-              className="w-full rounded-full border border-emerald-200 bg-emerald-50/30 py-2 pl-9 pr-4 text-sm text-zinc-800 placeholder:text-zinc-500 transition-all duration-200 focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-              aria-label="Search transactions"
-            />
-          </label>
+        {/*subscription countdown */}
+        <div className="flex flex-1 items-center justify-center">
+          <SubscriptionCountdown />
         </div>
 
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="flex flex-1 items-center justify-end gap-1.5 sm:gap-2">
           <button
             type="button"
             className="relative inline-flex h-10 w-10 items-center justify-center rounded-full text-zinc-600 transition-all duration-200 hover:bg-emerald-50 hover:text-emerald-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
             aria-label="Notifications"
           >
             <Bell size={18} />
-            <span
-              className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-red-500"
-              aria-hidden="true"
-            />
+            <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-red-500" />
           </button>
 
           <button
@@ -117,6 +152,7 @@ const Header = ({
             <MessageSquare size={18} />
           </button>
 
+          {/* Profile dropdown */}
           <div className="relative" ref={profileRef}>
             <button
               type="button"
@@ -127,7 +163,7 @@ const Header = ({
               aria-haspopup="menu"
             >
               <img
-                src={userAvatar}
+                src={userAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=d1fae5&color=065f46&size=80`}
                 alt="User profile"
                 className="h-8 w-8 rounded-full border border-emerald-100 object-cover"
               />
@@ -141,34 +177,44 @@ const Header = ({
               />
             </button>
 
+            {/* Dropdown */}
             <div
               className={`absolute right-0 mt-2 w-48 origin-top-right rounded-lg border border-emerald-100 bg-white p-1.5 shadow-lg transition-all duration-200 ${isProfileOpen
                   ? "pointer-events-auto translate-y-0 opacity-100"
                   : "pointer-events-none -translate-y-1 opacity-0"
                 }`}
               role="menu"
-              aria-label="Profile menu"
             >
-              <a
-                type="button"
-                href="/dashboard/profile"
-                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-zinc-700 transition-colors duration-150 hover:bg-emerald-50 hover:text-emerald-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+
+              <a href="/dashboard/profile"
+                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-zinc-700 transition-colors hover:bg-emerald-50 hover:text-emerald-900"
                 role="menuitem"
               >
                 <User size={15} />
                 <span>Profile</span>
               </a>
+
+              <a href="/packages"
+                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-zinc-700 transition-colors hover:bg-emerald-50 hover:text-emerald-900"
+                role="menuitem"
+              >
+                <Bell size={15} />
+                <span>Upgrade Plan</span>
+              </a>
+              <div className="my-1 border-t border-zinc-100" />
               <button
                 type="button"
                 onClick={handleLogOut}
-                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-zinc-700 transition-colors duration-150 hover:bg-emerald-50 hover:text-emerald-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-red-600 transition-colors hover:bg-red-50"
                 role="menuitem"
               >
+                <LogOut size={15} />
                 <span>Logout</span>
               </button>
             </div>
           </div>
         </div>
+
       </div>
     </header>
   );

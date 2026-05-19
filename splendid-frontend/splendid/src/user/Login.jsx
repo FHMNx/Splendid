@@ -43,7 +43,14 @@ const Login = () => {
       login(data);
 
       toast.success(`Login Successful! Welcome back, ${data.firstName}!`);
-      navigate("/dashboard");
+
+      if(data.role === "ADMIN") {
+        navigate("/admin/dashboard");
+        return;
+      }else{
+        navigate("/dashboard");
+      }
+
     } catch (error) {
       const message = error?.response?.data?.message || "Login failed. Please try again.";
       toast.error(message);
@@ -67,6 +74,16 @@ const Login = () => {
         <div className="pointer-events-none absolute -right-16 bottom-12 h-44 w-44 rounded-full bg-lime-200/30 blur-3xl" />
         <div className="w-full max-w-md bg-white rounded-2xl border border-green-100 shadow-xl p-8">
           <form className="space-y-6" onSubmit={handleLogin}>
+            <div className="flex justify-start">
+              <Link
+                to="/"
+                className="inline-flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-4 py-2 text-sm font-semibold text-green-800 transition-colors hover:bg-green-100"
+              >
+                <span aria-hidden="true">←</span>
+                Back to Home
+              </Link>
+            </div>
+
             <div className="text-center">
               <h2 className="text-3xl font-bold text-green-800">
                 Welcome Back

@@ -52,6 +52,7 @@ const DashboardLayout = () => {
           <Outlet />
         </main>
       </div>
+
     </div>
   );
 };

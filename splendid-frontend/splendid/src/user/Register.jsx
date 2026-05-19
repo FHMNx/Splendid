@@ -96,6 +96,16 @@ const Register = () => {
         <div className="pointer-events-none absolute -right-20 bottom-10 h-48 w-48 rounded-full bg-lime-200/30 blur-3xl" />
         <div className="w-full max-w-md bg-white rounded-2xl border border-green-100 shadow-xl p-8">
           <form className="space-y-6" onSubmit={registerNow}>
+            <div className="flex justify-start">
+              <Link
+                to="/"
+                className="inline-flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-4 py-2 text-sm font-semibold text-green-800 transition-colors hover:bg-green-100"
+              >
+                <span aria-hidden="true">←</span>
+                Back to Home
+              </Link>
+            </div>
+
             <div className="text-center">
               <h2 className="text-3xl font-bold text-green-800">
                 Create an Account
@@ -162,13 +172,12 @@ const Register = () => {
               />
               {password && (
                 <p
-                  className={`text-sm mt-1 font-semibold ${
-                    passwordStrength === "Weak"
+                  className={`text-sm mt-1 font-semibold ${passwordStrength === "Weak"
                       ? "text-red-500"
                       : passwordStrength === "Medium"
                         ? "text-yellow-500"
                         : "text-green-600"
-                  }`}
+                    }`}
                 >
                   Strength: {passwordStrength}
                 </p>

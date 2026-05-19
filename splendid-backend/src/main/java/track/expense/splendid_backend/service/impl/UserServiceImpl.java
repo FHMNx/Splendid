@@ -11,6 +11,7 @@ import track.expense.splendid_backend.repository.UserProfileImageRepository;
 import track.expense.splendid_backend.repository.UserRepository;
 import track.expense.splendid_backend.service.CloudinaryService;
 import track.expense.splendid_backend.service.EmailService;
+import track.expense.splendid_backend.service.SubscriptionService;
 import track.expense.splendid_backend.service.UserService;
 import track.expense.splendid_backend.security.jwt.JwtService;
 
@@ -30,6 +31,8 @@ public class UserServiceImpl implements UserService {
 
     private final UserProfileImageRepository profileImageRepository;
     private final CloudinaryService cloudinaryService;
+
+    private final SubscriptionService subscriptionService;
 
     private static final String EMAIL_REGEX = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$";
     private static final String PASSWORD_REGEX = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d@$!#%*?&]{8,}$";
@@ -73,6 +76,7 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         userRepository.save(user);
+        subscriptionService.createFreeTrial(user);
 
         emailService.sendVerificationEmail(
                 user.getEmail(),
@@ -101,6 +105,7 @@ public class UserServiceImpl implements UserService {
                 .email(user.getEmail())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
+                .role(user.getRole().name())
                 .build();
     }
 
