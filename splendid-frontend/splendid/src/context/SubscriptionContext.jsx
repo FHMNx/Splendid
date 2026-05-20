@@ -21,7 +21,7 @@ export const SubscriptionProvider = ({ children }) => {
             console.log("Subscription data:", res.data);
             setSubscription(res.data);
             setLastChecked(Date.now());
-        } catch {
+        } catch(error) {
             console.error("Subscription fetch error:", error);
             setSubscription(null);
         } finally {

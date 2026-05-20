@@ -21,6 +21,11 @@ import ResetPassword from "./pages/ResetPassword";
 import PrivateRoute from "./routes/PrivateRoute";
 import PublicRoute from "./routes/PublicRoute";
 import SubscriptionGuard from "./routes/SubscriptionGuard";
+import AdminRoute from "./routes/AdminRoute";
+import AdminLayout from "./components/layout/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminTransactions from "./pages/admin/AdminTransactions";
 
 
 const App = () => {
@@ -54,6 +59,15 @@ const App = () => {
               <Route path="budgets" element={<Budget />} />
               <Route path="budget" element={<Navigate to="/dashboard/budgets" replace />} />
             </Route>
+          </Route>
+        </Route>
+
+      {/* Admin Routes */}
+        <Route element={<AdminRoute />}>
+          <Route element={<AdminLayout />}>
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/transactions" element={<AdminTransactions />} />
           </Route>
         </Route>
 
