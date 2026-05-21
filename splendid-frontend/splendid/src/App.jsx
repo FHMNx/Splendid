@@ -26,6 +26,8 @@ import AdminLayout from "./components/layout/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminTransactions from "./pages/admin/AdminTransactions";
+import AdminSubscriptions from "./pages/admin/AdminSubscriptions";
+import AdminProfits from "./pages/admin/AdminProfits";
 
 
 const App = () => {
@@ -68,6 +70,8 @@ const App = () => {
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/transactions" element={<AdminTransactions />} />
+            <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
+            <Route path="/admin/profits" element={<AdminProfits />} />
           </Route>
         </Route>
 

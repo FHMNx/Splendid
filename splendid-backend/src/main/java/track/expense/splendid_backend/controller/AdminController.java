@@ -5,8 +5,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import track.expense.splendid_backend.dto.*;
+import track.expense.splendid_backend.repository.PaymentRepository;
+import track.expense.splendid_backend.repository.UserRepository;
 import track.expense.splendid_backend.service.AdminService;
 import track.expense.splendid_backend.service.SubscriptionService;
+import track.expense.splendid_backend.dto.PaymentDto;
+import track.expense.splendid_backend.dto.PaymentSummaryDto;
+import track.expense.splendid_backend.dto.RecordPaymentDto;
 
 import java.util.List;
 import java.util.Map;
@@ -65,4 +70,42 @@ public class AdminController {
                 .build()
         );
     }
+
+
+    @GetMapping("/payments")
+    public ResponseEntity<ApiResponse<List<PaymentDto>>> getAllPayments() {
+        return ResponseEntity.ok(ApiResponse.<List<PaymentDto>>builder()
+                .success(true)
+                .message("Payments fetched")
+                .data(adminService.getAllPayments())
+                .build());
+    }
+
+    @GetMapping("/payments/summary")
+    public ResponseEntity<ApiResponse<PaymentSummaryDto>> getPaymentSummary() {
+        return ResponseEntity.ok(ApiResponse.<PaymentSummaryDto>builder()
+                .success(true)
+                .message("Summary fetched")
+                .data(adminService.getPaymentSummary())
+                .build());
+    }
+
+    @PostMapping("/payments")
+    public ResponseEntity<ApiResponse<PaymentDto>> recordPayment(@RequestBody RecordPaymentDto request) {
+        PaymentDto payment = adminService.recordPayment(request);
+        return ResponseEntity.ok(ApiResponse.<PaymentDto>builder()
+                .success(true)
+                .message("Payment recorded and subscription activated")
+                .data(payment)
+                .build());
+    }
+
+
+
+
+
+
+
+
+
 }

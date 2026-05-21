@@ -1,6 +1,8 @@
 package track.expense.splendid_backend.dto;
 
 import lombok.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -17,4 +19,10 @@ public class AdminUserDto {
     private boolean verified;
     private LocalDateTime createdAt;
     private long transactionCount;
+
+    // subscription info
+    private String subscriptionPlan;
+    private String subscriptionStatus;
+    private LocalDate subscriptionEndDate;
+    private long subscriptionDaysRemaining;
 }

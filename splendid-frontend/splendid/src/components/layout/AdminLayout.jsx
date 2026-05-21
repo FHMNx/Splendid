@@ -1,9 +1,6 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import {
-    LayoutDashboard, Users, ArrowLeftRight,
-    LogOut, Menu, X, Shield, ChevronDown, User,
-} from "lucide-react";
+import { LayoutDashboard, Users, ArrowLeftRight, LogOut, Menu, X, Shield, ChevronDown, User, Crown, TrendingUp } from "lucide-react";
 import splendidLogo from "../../assets/splendid.png";
 import { Outlet } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -13,7 +10,9 @@ import { useRef, useEffect } from "react";
 const NAV_ITEMS = [
     { to: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { to: "/admin/users", label: "Users", icon: Users },
+    { to: "/admin/subscriptions", label: "Subscriptions", icon: Crown },
     { to: "/admin/transactions", label: "Transactions", icon: ArrowLeftRight },
+    { to: "/admin/profits", label: "Profits", icon: TrendingUp },
 ];
 
 const AdminLayout = () => {
@@ -139,8 +138,8 @@ const AdminLayout = () => {
                         </button>
 
                         <div className={`absolute right-0 mt-2 w-44 rounded-lg border border-emerald-100 bg-white p-1.5 shadow-lg transition-all duration-200 ${isProfileOpen
-                                ? "pointer-events-auto translate-y-0 opacity-100"
-                                : "pointer-events-none -translate-y-1 opacity-0"
+                            ? "pointer-events-auto translate-y-0 opacity-100"
+                            : "pointer-events-none -translate-y-1 opacity-0"
                             }`}>
                             <div className="border-b border-zinc-100 px-3 py-2 mb-1">
                                 <p className="text-xs font-medium text-zinc-900">

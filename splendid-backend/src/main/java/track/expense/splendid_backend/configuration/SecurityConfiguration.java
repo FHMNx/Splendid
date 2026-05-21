@@ -31,6 +31,8 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/payments/payhere/notify").permitAll()
+                        .requestMatchers("/api/payments/payhere/hash").permitAll()
                         .requestMatchers("/api/subscription/status").authenticated()
                         .requestMatchers(("/api/admin/**")).hasRole("ADMIN")
                         .anyRequest().authenticated()

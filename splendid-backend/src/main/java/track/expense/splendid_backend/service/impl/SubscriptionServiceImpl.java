@@ -39,6 +39,19 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     public SubscriptionDto getSubscriptionStatus() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (user.getRole() == User.Role.ADMIN) {
+            return SubscriptionDto.builder()
+                    .id(null)
+                    .plan("ADMIN")
+                    .status("ACTIVE")
+                    .startDate(LocalDate.now())
+                    .endDate(LocalDate.now().plusYears(99))
+                    .daysRemaining(36500)
+                    .isActive(true)
+                    .build();
+        }
+
         Subscription subscription = subscriptionRepository.findByUser(user).orElseThrow(() -> new ResourceNotFoundException("Subscription not found"));
         return buildDto(subscription);
     }

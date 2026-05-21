@@ -24,3 +24,19 @@ export const getAllTransactionsAdmin = async (page = 0, size = 10) => {
     const response = await api.get(`/admin/transactions?page=${page}&size=${size}`);
     return response.data;
 };
+
+
+export const getPaymentSummary = async () => {
+    const response = await api.get("/admin/payments/summary");
+    return response.data;
+};
+
+export const getAllPayments = async () => {
+    const response = await api.get("/admin/payments");
+    return response.data;
+};
+
+export const recordPayment = async (data) => {
+    const response = await api.post("/admin/payments", data);
+    return response.data;
+};

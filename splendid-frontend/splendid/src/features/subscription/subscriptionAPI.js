@@ -6,9 +6,6 @@ export const getSubscriptionStatus = async () => {
 };
 
 export const activateSubscription = async (userId, plan) => {
-  const response = await api.put(
-    `/admin/users/${userId}/subscription`,
-    { plan }
-  );
+  const response = await api.put(`/admin/users/${userId}/subscription`, { plan });
   return response.data;
 };
