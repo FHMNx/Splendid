@@ -28,6 +28,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminTransactions from "./pages/admin/AdminTransactions";
 import AdminSubscriptions from "./pages/admin/AdminSubscriptions";
 import AdminProfits from "./pages/admin/AdminProfits";
+import AdminSettings from "./pages/admin/AdminSettings";
 
 
 const App = () => {
@@ -64,7 +65,7 @@ const App = () => {
           </Route>
         </Route>
 
-      {/* Admin Routes */}
+        {/* Admin Routes */}
         <Route element={<AdminRoute />}>
           <Route element={<AdminLayout />}>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
@@ -72,6 +73,7 @@ const App = () => {
             <Route path="/admin/transactions" element={<AdminTransactions />} />
             <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
             <Route path="/admin/profits" element={<AdminProfits />} />
+            <Route path="/admin/settings" element={<AdminSettings />} />
           </Route>
         </Route>
 

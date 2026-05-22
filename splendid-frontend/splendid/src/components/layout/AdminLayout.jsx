@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Users, ArrowLeftRight, LogOut, Menu, X, Shield, ChevronDown, User, Crown, TrendingUp } from "lucide-react";
+import { LayoutDashboard, Users, ArrowLeftRight, LogOut, Menu, X, Shield, ChevronDown, User, Crown, TrendingUp, Settings } from "lucide-react";
 import splendidLogo from "../../assets/splendid.png";
 import { Outlet } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { toast } from "react-hot-toast";
 import { useRef, useEffect } from "react";
+import { getProfile } from "../../features/auth/authAPI";
 
 const NAV_ITEMS = [
     { to: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -13,6 +14,7 @@ const NAV_ITEMS = [
     { to: "/admin/subscriptions", label: "Subscriptions", icon: Crown },
     { to: "/admin/transactions", label: "Transactions", icon: ArrowLeftRight },
     { to: "/admin/profits", label: "Profits", icon: TrendingUp },
+    { to: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
 const AdminLayout = () => {
@@ -21,6 +23,20 @@ const AdminLayout = () => {
     const { logout, user } = useAuth();
     const navigate = useNavigate();
     const profileRef = useRef(null);
+
+    const [adminAvatar, setAdminAvatar] = useState(null);
+
+    useEffect(() => {
+        const fetchAdminProfile = async () => {
+            try {
+                const res = await getProfile();
+                setAdminAvatar(res.data?.profileImageUrl || null);
+            } catch {
+                setAdminAvatar(null);
+            }
+        };
+        fetchAdminProfile();
+    }, []);
 
     const handleLogout = () => {
         logout();
@@ -128,9 +144,13 @@ const AdminLayout = () => {
                             onClick={() => setIsProfileOpen((p) => !p)}
                             className="inline-flex items-center gap-2 rounded-full border border-transparent px-2 py-1.5 text-zinc-700 transition hover:border-emerald-100 hover:bg-emerald-50"
                         >
-                            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
-                                <User size={16} />
-                            </span>
+                            <img
+                                src={adminAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                                    (user?.firstName ?? "A") + " " + (user?.lastName ?? "")
+                                )}&background=d1fae5&color=065f46&size=80`}
+                                alt="Admin avatar"
+                                className="h-8 w-8 rounded-full border border-emerald-100 object-cover"
+                            />
                             <span className="hidden text-sm font-medium sm:inline">
                                 {user?.firstName} {user?.lastName}
                             </span>
