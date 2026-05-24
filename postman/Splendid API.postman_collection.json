@@ -1,0 +1,1192 @@
+{
+  "info": {
+    "_postman_id": "8d72e54b-19e3-4403-8afe-13750939bec7",
+    "name": "Splendid API",
+    "description": "**Splendid Expense Tracker API  \nBase URL: {{base_url}}  \nAuth: Bearer token in Authorization header**\n\n### Common Errors and Fixes\n\n403 Forbidden — token missing or expired. Re-run Login request.\n\n404 Not Found — wrong URL. Check the endpoint table above exactly.\n\n400 Bad Request — wrong request body. Check JSON field names match the DTO.\n\n500 Internal Server Error — check Spring Boot console for the exact exception.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "49660479"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register (user)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"firstName\": \"Test\",\r\n  \"lastName\": \"User\",\r\n  \"email\": \"shafeeka35888@gmail.com\",\r\n  \"password\": \"Test@1234\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/register",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login (User)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();\r",
+                  "if (response.success && response.data && response.data.token) {\r",
+                  "    pm.environment.set(\"token\", response.data.token);\r",
+                  "    console.log(\"Token saved:\", response.data.token);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"fhmnx35888@gmail.com\",\r\n  \"password\": \"Razim123@\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/login",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();\r",
+                  "if (response.success && response.data && response.data.token) {\r",
+                  "    pm.environment.set(\"admin_token\", response.data.token);\r",
+                  "    console.log(\"Admin token saved:\", response.data.token);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"info.envyclothings@gmail.com\",\r\n  \"password\": \"Splendid35888@\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/login",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Email",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"info.envyclothings@gmail.com\",\r\n  \"password\": \"Splendid123@\"\r\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/verify?token=61cea722-2dd5-433d-ac56-c50375b96d93",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "verify"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "61cea722-2dd5-433d-ac56-c50375b96d93"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"info.envyclothings@gmail.com\",\r\n  \"password\": \"Splendid123@\"\r\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/forgot-password?email=info.envyclothings@gmail.com",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "forgot-password"
+              ],
+              "query": [
+                {
+                  "key": "email",
+                  "value": "info.envyclothings@gmail.com"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validate Reset Token",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"info.envyclothings@gmail.com\",\r\n  \"password\": \"Splendid123@\"\r\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/validate-reset-token?token=c03e1f06-b4ec-4ff6-b52d-e79ba56b24ed",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "validate-reset-token"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "c03e1f06-b4ec-4ff6-b52d-e79ba56b24ed"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"info.envyclothings@gmail.com\",\r\n  \"password\": \"Splendid123@\"\r\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/reset-password?token=c03e1f06-b4ec-4ff6-b52d-e79ba56b24ed&password=Splendid35888@",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "reset-password"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "c03e1f06-b4ec-4ff6-b52d-e79ba56b24ed"
+                },
+                {
+                  "key": "password",
+                  "value": "Splendid35888@"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User Profile",
+      "item": [
+        {
+          "name": "Get Profile",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaG1ueDM1ODg4QGdtYWlsLmNvbSIsImlhdCI6MTc3OTYxMDM4NiwiZXhwIjoxNzc5Njk2Nzg2fQ.isANl9tMq5zKHVHzOH-7qimwq2QCB_x4SXcs3kY8Mgg",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/profile",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaG1ueDM1ODg4QGdtYWlsLmNvbSIsImlhdCI6MTc3OTYxMDM4NiwiZXhwIjoxNzc5Njk2Nzg2fQ.isANl9tMq5zKHVHzOH-7qimwq2QCB_x4SXcs3kY8Mgg",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"firstName\": \"Mohammed\",\r\n  \"lastName\": \"Razim\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/profile",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaG1ueDM1ODg4QGdtYWlsLmNvbSIsImlhdCI6MTc3OTYxMDM4NiwiZXhwIjoxNzc5Njk2Nzg2fQ.isANl9tMq5zKHVHzOH-7qimwq2QCB_x4SXcs3kY8Mgg",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"currentPassword\": \"Razim123@\",\r\n  \"newPassword\": \"NewTest@1234\",\r\n  \"confirmPassword\": \"NewTest@1234\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/change-password",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "change-password"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token}}",
+            "type": "string"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "Get Categories by Type - EXPENSE",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaG1ueDM1ODg4QGdtYWlsLmNvbSIsImlhdCI6MTc3OTYxMDM4NiwiZXhwIjoxNzc5Njk2Nzg2fQ.isANl9tMq5zKHVHzOH-7qimwq2QCB_x4SXcs3kY8Mgg",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"currentPassword\": \"Razim123@\",\r\n  \"newPassword\": \"NewTest@1234\",\r\n  \"confirmPassword\": \"NewTest@1234\"\r\n}\r\n"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/categories/type/EXPENSE",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "categories",
+                "type",
+                "EXPENSE"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Categories by Type - INCOME",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaG1ueDM1ODg4QGdtYWlsLmNvbSIsImlhdCI6MTc3OTYxMDM4NiwiZXhwIjoxNzc5Njk2Nzg2fQ.isANl9tMq5zKHVHzOH-7qimwq2QCB_x4SXcs3kY8Mgg",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Grocery Shopping\",\r\n  \"amount\": 2500.00,\r\n  \"type\": \"EXPENSE\",\r\n  \"date\": \"2026-05-20\",\r\n  \"paymentMethod\": \"CASH\",\r\n  \"notes\": \"Weekly groceries\",\r\n  \"categoryId\": 1\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/categories/type/income",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "categories",
+                "type",
+                "income"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Transaction",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();\r",
+                  "if (res.id) {\r",
+                  "    pm.environment.set(\"transaction_id\", res.id);\r",
+                  "    console.log(\"Transaction ID saved:\", res.id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaG1ueDM1ODg4QGdtYWlsLmNvbSIsImlhdCI6MTc3OTYxMDM4NiwiZXhwIjoxNzc5Njk2Nzg2fQ.isANl9tMq5zKHVHzOH-7qimwq2QCB_x4SXcs3kY8Mgg",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Grocery Shopping\",\r\n  \"amount\": 2500.00,\r\n  \"type\": \"EXPENSE\",\r\n  \"date\": \"2026-05-20\",\r\n  \"paymentMethod\": \"CASH\",\r\n  \"notes\": \"Weekly groceries\",\r\n  \"categoryId\": 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/transactions/create",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "transactions",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Transactions (Paginated)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaG1ueDM1ODg4QGdtYWlsLmNvbSIsImlhdCI6MTc3OTYxMDM4NiwiZXhwIjoxNzc5Njk2Nzg2fQ.isANl9tMq5zKHVHzOH-7qimwq2QCB_x4SXcs3kY8Mgg",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transactions/all?page=0&size=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "transactions",
+                "all"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Transaction by ID",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaG1ueDM1ODg4QGdtYWlsLmNvbSIsImlhdCI6MTc3OTYxMDM4NiwiZXhwIjoxNzc5Njk2Nzg2fQ.isANl9tMq5zKHVHzOH-7qimwq2QCB_x4SXcs3kY8Mgg",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transactions/17",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "transactions",
+                "17"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Transaction",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaG1ueDM1ODg4QGdtYWlsLmNvbSIsImlhdCI6MTc3OTYxMDM4NiwiZXhwIjoxNzc5Njk2Nzg2fQ.isANl9tMq5zKHVHzOH-7qimwq2QCB_x4SXcs3kY8Mgg",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Updated Groceries\",\r\n  \"amount\": 3000.00,\r\n  \"type\": \"EXPENSE\",\r\n  \"date\": \"2026-05-20\",\r\n  \"paymentMethod\": \"CREDIT_CARD\",\r\n  \"notes\": \"Updated notes\",\r\n  \"categoryId\": 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/transactions/17",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "transactions",
+                "17"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Transaction Summary",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaG1ueDM1ODg4QGdtYWlsLmNvbSIsImlhdCI6MTc3OTYxMDM4NiwiZXhwIjoxNzc5Njk2Nzg2fQ.isANl9tMq5zKHVHzOH-7qimwq2QCB_x4SXcs3kY8Mgg",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transactions/summary",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "transactions",
+                "summary"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Transaction Trend",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaG1ueDM1ODg4QGdtYWlsLmNvbSIsImlhdCI6MTc3OTYxMDM4NiwiZXhwIjoxNzc5Njk2Nzg2fQ.isANl9tMq5zKHVHzOH-7qimwq2QCB_x4SXcs3kY8Mgg",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transactions/trend?range=3m",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "transactions",
+                "trend"
+              ],
+              "query": [
+                {
+                  "key": "range",
+                  "value": "3m"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Category Breakdown",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaG1ueDM1ODg4QGdtYWlsLmNvbSIsImlhdCI6MTc3OTYxMDM4NiwiZXhwIjoxNzc5Njk2Nzg2fQ.isANl9tMq5zKHVHzOH-7qimwq2QCB_x4SXcs3kY8Mgg",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transactions/category-breakdown",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "transactions",
+                "category-breakdown"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Transaction",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaG1ueDM1ODg4QGdtYWlsLmNvbSIsImlhdCI6MTc3OTYxMDM4NiwiZXhwIjoxNzc5Njk2Nzg2fQ.isANl9tMq5zKHVHzOH-7qimwq2QCB_x4SXcs3kY8Mgg",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transactions/17",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "transactions",
+                "17"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Budgets",
+      "item": [
+        {
+          "name": "Create/Update Budget",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaG1ueDM1ODg4QGdtYWlsLmNvbSIsImlhdCI6MTc3OTYxMDM4NiwiZXhwIjoxNzc5Njk2Nzg2fQ.isANl9tMq5zKHVHzOH-7qimwq2QCB_x4SXcs3kY8Mgg",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"categoryId\": 1,\r\n  \"limitAmount\": 10000.00,\r\n  \"month\": 5,\r\n  \"year\": 2026\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/budgets",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "budgets"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Budgets for Month",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaG1ueDM1ODg4QGdtYWlsLmNvbSIsImlhdCI6MTc3OTYxMDM4NiwiZXhwIjoxNzc5Njk2Nzg2fQ.isANl9tMq5zKHVHzOH-7qimwq2QCB_x4SXcs3kY8Mgg",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/budgets?month=5&year=2026",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "budgets"
+              ],
+              "query": [
+                {
+                  "key": "month",
+                  "value": "5"
+                },
+                {
+                  "key": "year",
+                  "value": "2026"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Budget",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaG1ueDM1ODg4QGdtYWlsLmNvbSIsImlhdCI6MTc3OTYxMDM4NiwiZXhwIjoxNzc5Njk2Nzg2fQ.isANl9tMq5zKHVHzOH-7qimwq2QCB_x4SXcs3kY8Mgg",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/budgets/5",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "budgets",
+                "5"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Subscription",
+      "item": [
+        {
+          "name": "Get Subscription Status",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaG1ueDM1ODg4QGdtYWlsLmNvbSIsImlhdCI6MTc3OTYxMDM4NiwiZXhwIjoxNzc5Njk2Nzg2fQ.isANl9tMq5zKHVHzOH-7qimwq2QCB_x4SXcs3kY8Mgg",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/subscription/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "subscription",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Generate PayHere Hash",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"orderId\": \"1_MONTHLY_1234567890\",\r\n  \"amount\": \"499.00\",\r\n  \"currency\": \"LKR\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/payments/payhere/hash",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "payments",
+                "payhere",
+                "hash"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Admin Stats",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpbmZvLmVudnljbG90aGluZ3NAZ21haWwuY29tIiwiaWF0IjoxNzc5NjEyODM3LCJleHAiOjE3Nzk2OTkyMzd9.I7I0Q64ssIGZ_HYhvcOpcvMiSPgOyCrqYFAOl0VJ5M0",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "stats"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpbmZvLmVudnljbG90aGluZ3NAZ21haWwuY29tIiwiaWF0IjoxNzc5NjEyODM3LCJleHAiOjE3Nzk2OTkyMzd9.I7I0Q64ssIGZ_HYhvcOpcvMiSPgOyCrqYFAOl0VJ5M0",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle User Verification",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpbmZvLmVudnljbG90aGluZ3NAZ21haWwuY29tIiwiaWF0IjoxNzc5NjEyODM3LCJleHAiOjE3Nzk2OTkyMzd9.I7I0Q64ssIGZ_HYhvcOpcvMiSPgOyCrqYFAOl0VJ5M0",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/users/5/toggle-verification",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "5",
+                "toggle-verification"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Transactions (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpbmZvLmVudnljbG90aGluZ3NAZ21haWwuY29tIiwiaWF0IjoxNzc5NjEyODM3LCJleHAiOjE3Nzk2OTkyMzd9.I7I0Q64ssIGZ_HYhvcOpcvMiSPgOyCrqYFAOl0VJ5M0",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/transactions?page=0&size=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "transactions"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Activate Subscription",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpbmZvLmVudnljbG90aGluZ3NAZ21haWwuY29tIiwiaWF0IjoxNzc5NjEyODM3LCJleHAiOjE3Nzk2OTkyMzd9.I7I0Q64ssIGZ_HYhvcOpcvMiSPgOyCrqYFAOl0VJ5M0",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"plan\": \"MONTHLY\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/users/5/subscription",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "5",
+                "subscription"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Payments",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpbmZvLmVudnljbG90aGluZ3NAZ21haWwuY29tIiwiaWF0IjoxNzc5NjEyODM3LCJleHAiOjE3Nzk2OTkyMzd9.I7I0Q64ssIGZ_HYhvcOpcvMiSPgOyCrqYFAOl0VJ5M0",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/payments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "payments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Payment Summary",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpbmZvLmVudnljbG90aGluZ3NAZ21haWwuY29tIiwiaWF0IjoxNzc5NjEyODM3LCJleHAiOjE3Nzk2OTkyMzd9.I7I0Q64ssIGZ_HYhvcOpcvMiSPgOyCrqYFAOl0VJ5M0",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/payments/summary",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "payments",
+                "summary"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Record Payment Manually",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpbmZvLmVudnljbG90aGluZ3NAZ21haWwuY29tIiwiaWF0IjoxNzc5NjEyODM3LCJleHAiOjE3Nzk2OTkyMzd9.I7I0Q64ssIGZ_HYhvcOpcvMiSPgOyCrqYFAOl0VJ5M0",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"userId\": 2,\r\n  \"plan\": \"MONTHLY\",\r\n  \"amount\": 499.00,\r\n  \"paymentMethod\": \"WHATSAPP\",\r\n  \"notes\": \"Payment received via WhatsApp\",\r\n  \"paidAt\": \"2026-05-20T10:00:00\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/payments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "payments"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
