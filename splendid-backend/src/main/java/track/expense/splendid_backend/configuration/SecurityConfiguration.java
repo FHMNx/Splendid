@@ -33,6 +33,12 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/payments/payhere/notify").permitAll()
                         .requestMatchers("/api/payments/payhere/hash").permitAll()
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/v3/api-docs"
+                        ).permitAll()
                         .requestMatchers("/api/subscription/status").authenticated()
                         .requestMatchers(("/api/admin/**")).hasRole("ADMIN")
                         .anyRequest().authenticated()

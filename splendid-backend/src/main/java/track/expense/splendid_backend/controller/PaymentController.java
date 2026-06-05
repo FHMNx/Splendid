@@ -1,5 +1,7 @@
 package track.expense.splendid_backend.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Map;
 
+@Tag(name = "Payments", description = "PayHere payment gateway integration")
 @RestController
 @RequestMapping("/api/payments")
 @RequiredArgsConstructor
@@ -32,6 +35,7 @@ public class PaymentController {
     private String merchantSecret;
 
     // PayHere calls this endpoint after payment
+    @Operation(summary = "PayHere payment notification webhook", description = "Called by PayHere after successful payment. Verifies signature and activates subscription.")
     @PostMapping("/payhere/notify")
     public ResponseEntity<String> handlePayHereNotify(
             @ModelAttribute PayHereNotifyRequest notify) {
@@ -110,6 +114,7 @@ public class PaymentController {
     }
 
 
+    @Operation(summary = "Generate PayHere payment hash", description = "Backend generates secure MD5 hash for PayHere checkout")
     @PostMapping("/payhere/hash")
     public ResponseEntity<ApiResponse<Map<String, String>>> generateHash(
             @RequestBody Map<String, String> body) {

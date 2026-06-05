@@ -1,5 +1,7 @@
 package track.expense.splendid_backend.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -8,6 +10,7 @@ import track.expense.splendid_backend.service.UserService;
 
 import java.util.Map;
 
+@Tag(name = "Authentication", description = "User registration, login, email verification and password reset")
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -15,6 +18,7 @@ public class AuthController {
 
     private final UserService userService;
 
+    @Operation(summary = "Register a new user", description = "Creates account and sends verification email")
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<Void>> register(@RequestBody RegisterRequestDto request) {
         userService.register(request);
@@ -25,6 +29,7 @@ public class AuthController {
         );
     }
 
+    @Operation(summary = "Login", description = "Returns JWT token on successful login")
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponseDto>> login(@RequestBody LoginRequestDto request) {
         AuthResponseDto response = userService.login(request);
@@ -36,6 +41,7 @@ public class AuthController {
         );
     }
 
+    @Operation(summary = "Verify email", description = "Verifies email using token from verification email")
     @GetMapping("/verify")
     public ResponseEntity<ApiResponse<String>> verifyEmail(@RequestParam String token) {
         String message = userService.verifyEmail(token);
@@ -46,6 +52,7 @@ public class AuthController {
         );
     }
 
+    @Operation(summary = "Resend verification email")
     @PostMapping("/resend-verification")
     public ResponseEntity<ApiResponse<String>> resendVerification(@RequestParam String email) {
         String message = userService.resendVerification(email);
@@ -56,6 +63,7 @@ public class AuthController {
         );
     }
 
+    @Operation(summary = "Request password reset", description = "Sends reset link to email (15 min expiry)")
     @PostMapping("/forgot-password")
     public ResponseEntity<ApiResponse<String>> forgotPassword(@RequestParam String email) {
         userService.requestPasswordReset(email);
@@ -66,6 +74,7 @@ public class AuthController {
         );
     }
 
+    @Operation(summary = "Reset password using token")
     @PostMapping("/reset-password")
     public ResponseEntity<ApiResponse<String>> resetPassword(@RequestParam String token,
                                                              @RequestParam String password) {
@@ -77,6 +86,7 @@ public class AuthController {
         );
     }
 
+    @Operation(summary = "Validate password reset token")
     @GetMapping("/validate-reset-token")
     public ResponseEntity<ApiResponse<String>> validateResetToken(@RequestParam String token) {
         userService.validateResetToken(token);
@@ -88,6 +98,7 @@ public class AuthController {
     }
 
 
+    @Operation(summary = "Get current user profile")
     @GetMapping("/profile")
     public ResponseEntity<ApiResponse<UserProfileDto>> getProfile() {
         UserProfileDto profile = userService.getProfile();
@@ -99,6 +110,7 @@ public class AuthController {
         );
     }
 
+    @Operation(summary = "Update profile name")
     @PutMapping("/profile")
     public ResponseEntity<ApiResponse<UserProfileDto>> updateProfile(@RequestBody UpdateProfileDto request) {
         UserProfileDto updated = userService.updateProfile(request);
@@ -110,6 +122,7 @@ public class AuthController {
         );
     }
 
+    @Operation(summary = "Change password")
     @PutMapping("/change-password")
     public ResponseEntity<ApiResponse<Void>> changePassword(@RequestBody ChangePasswordDto request) {
         userService.changePassword(request);
@@ -121,6 +134,7 @@ public class AuthController {
     }
 
 
+    @Operation(summary = "Update profile image", description = "Upload base64 encoded image to Cloudinary")
     @PutMapping("/profile/image")
     public ResponseEntity<ApiResponse<UserProfileDto>> updateProfileImage(@RequestBody Map<String, String> body) {
 

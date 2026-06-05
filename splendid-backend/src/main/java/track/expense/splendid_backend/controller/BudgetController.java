@@ -1,5 +1,7 @@
 package track.expense.splendid_backend.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +14,7 @@ import track.expense.splendid_backend.service.BudgetService;
 import java.time.LocalDate;
 import java.util.List;
 
+@Tag(name = "Budgets", description = "Set and manage monthly spending limits per category")
 @RestController
 @RequestMapping("/api/budgets")
 @RequiredArgsConstructor
@@ -19,6 +22,7 @@ public class BudgetController {
 
     private final BudgetService budgetService;
 
+    @Operation(summary = "Create or update budget", description = "If budget exists for same category/month/year it will be updated")
     @PostMapping
     public ResponseEntity<ApiResponse<BudgetDto>> createOrUpdateBudget(@RequestBody BudgetRequestDto budgetDto) {
         BudgetDto budget = budgetService.createOrUpdateBudget(budgetDto);
@@ -32,6 +36,7 @@ public class BudgetController {
     }
 
 
+    @Operation(summary = "Get budgets for a specific month", description = "Defaults to current month if not specified")
     @GetMapping
     public ResponseEntity<ApiResponse<List<BudgetDto>>> getBudgets(
             @RequestParam(required = false) Integer month,
@@ -51,6 +56,7 @@ public class BudgetController {
     }
 
 
+    @Operation(summary = "Delete budget")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteBudget(@PathVariable Long id) {
         budgetService.deleteBudget(id);
