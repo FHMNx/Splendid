@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # 1. The Database
+  mysql-db:
+    image: mysql:8.0
+    container_name: splendid-mysql
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  # 2. Your Spring Boot Backend
+  backend:
+    image: splendid-backend:v1
+    container_name: splendid-backend-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql-db
+    environment:
+      # These environment variables automatically override your Spring Boot application.properties
+      # Notice how the URL points to "mysql-db" instead of "localhost"
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/${DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_ROOT_PASSWORD}
+
+  # 3. Your React/Vite Frontend
+  frontend:
+    image: splendid-frontend:v1
+    container_name: splendid-frontend-app
+    ports:
+      - "3000:80" # This maps your browser's localhost:3000 to the NGINX port 80
+    depends_on:
+      - backend
+
+# This volume ensures your database data isn't wiped out when the container stops
+volumes:
+  db_data:

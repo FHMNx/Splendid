@@ -9,5 +9,4 @@ class SplendidBackendApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }
