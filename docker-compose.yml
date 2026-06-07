@@ -30,6 +30,10 @@ services:
 
   # 3. Your React/Vite Frontend
   frontend:
+    build:
+      context: ./splendid-frontend/splendid
+      args:
+        - REACT_APP_API_URL=http://56.228.23.20:8080
     image: splendid-frontend:v1
     container_name: splendid-frontend-app
     ports:
