@@ -25,8 +25,8 @@ services:
       # These environment variables automatically override your Spring Boot application.properties
       # Notice how the URL points to "mysql-db" instead of "localhost"
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/${DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: ${DB_USER}
-      SPRING_DATASOURCE_PASSWORD: ${DB_ROOT_PASSWORD}
+      DB_USERNAME: ${DB_USER}
+      DB_PASSWORD: ${DB_ROOT_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
 
   # 3. React/Vite Frontend
