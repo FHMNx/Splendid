@@ -13,7 +13,7 @@ services:
     volumes:
       - db_data:/var/lib/mysql
 
-  # 2. Your Spring Boot Backend
+  # 2. Spring Boot Backend
   backend:
     image: splendid-backend:v1
     container_name: splendid-backend-app
@@ -28,12 +28,12 @@ services:
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_ROOT_PASSWORD}
 
-  # 3. Your React/Vite Frontend
+  # 3. React/Vite Frontend
   frontend:
     build:
       context: ./splendid-frontend/splendid
       args:
-        - REACT_APP_API_URL=http://56.228.23.20:8080
+        - VITE_API_URL=http://56.228.23.20:8080
     image: splendid-frontend:v1
     container_name: splendid-frontend-app
     ports:
