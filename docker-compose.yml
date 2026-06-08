@@ -23,6 +23,8 @@ services:
       - mysql-db
     environment:
      
+      APP_LOGO_URL: "https://res.cloudinary.com/dmht8yyea/image/upload/q_auto/f_auto/v1777136456/splendid_hqpges.png"
+
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/${DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_ROOT_PASSWORD}
