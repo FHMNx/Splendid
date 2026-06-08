@@ -28,10 +28,13 @@ public class EmailServiceImpl implements EmailService {
     @Value("${app.logo.url}")
     private String LOGO_URL;
 
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
+
     @Override
     public void sendVerificationEmail(String to, String name, String token) {
 
-        String verificationLink = "http://localhost:3000/verify?token=" + token;
+        String verificationLink = frontendUrl + "/verify?token=" + token;
 
         Context context = new Context();
         context.setVariable("name", name);
