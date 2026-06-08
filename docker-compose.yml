@@ -27,6 +27,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/${DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_ROOT_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
 
   # 3. React/Vite Frontend
   frontend:
