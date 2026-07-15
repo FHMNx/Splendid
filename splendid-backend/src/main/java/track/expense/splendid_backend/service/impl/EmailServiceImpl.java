@@ -49,7 +49,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendPasswordResetEmail(String to, String name, String token) {
 
-        String resetLink = "http://localhost:3000/reset-password?token=" + token;
+        String resetLink = frontendUrl + "/reset-password?token=" + token;
 
         Context context = new Context();
         context.setVariable("name", name);
