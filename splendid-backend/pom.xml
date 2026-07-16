@@ -101,13 +101,6 @@
         </dependency>
         <!--MAIL SENDING-->
 
-        <!--SAND GRID MAIL SENDING-->
-        <dependency>
-            <groupId>com.sendgrid</groupId>
-            <artifactId>sendgrid-java</artifactId>
-        </dependency>
-        <!--SAND GRID MAIL SENDING-->
-
         <!--Thymeleaf Email Template-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
