@@ -23,7 +23,7 @@ public class EmailServiceImpl implements EmailService {
     @Value("${app.frontend.url}")
     private String frontendUrl;
 
-    @Value("${spring.mail.username}")
+    @Value("${app.email.sender}")
     private String fromEmail;
 
     @Override
@@ -61,7 +61,7 @@ public class EmailServiceImpl implements EmailService {
             helper.setText(htmlContent, true);
 
             mailSender.send(message);
-            System.out.println("Email successfully sent to " + to + " via Google SMTP!");
+            System.out.println("Email successfully sent to " + to + " via SendGrid Port 2525!");
 
         } catch (Exception ex) {
             System.out.println("Failed to send email: " + ex.getMessage());
