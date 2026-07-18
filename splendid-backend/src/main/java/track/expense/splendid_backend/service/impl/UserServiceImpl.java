@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import track.expense.splendid_backend.dto.*;
 import track.expense.splendid_backend.entity.User;
 import track.expense.splendid_backend.entity.UserProfileImage;
@@ -22,6 +23,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional // This magic annotation ensures that if ANY method fails, the database rolls back automatically!
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -233,7 +235,7 @@ public class UserServiceImpl implements UserService {
                 .role(user.getRole().name())
                 .createdAt(user.getCreatedAt())
                 .verified(user.isVerified())
-                .profileImageUrl(profileImageUrl)   // ← real URL from DB
+                .profileImageUrl(profileImageUrl)
                 .build();
     }
 
@@ -290,13 +292,10 @@ public class UserServiceImpl implements UserService {
 
         Optional<UserProfileImage> existing = profileImageRepository.findByUser(user);
 
-        // if exists, delete old image from Cloudinary first
         existing.ifPresent(profileImage -> cloudinaryService.deleteImage(profileImage.getPublicId()));
 
-        // upload new image to Cloudinary
         Map<String, String> uploadResult = cloudinaryService.uploadBase64Image(base64Image, "splendid/profile-images");
 
-        // save or update ProfileImage entity
         UserProfileImage profileImage = existing.orElse(new UserProfileImage());
         profileImage.setUser(user);
         profileImage.setImageUrl(uploadResult.get("url"));
