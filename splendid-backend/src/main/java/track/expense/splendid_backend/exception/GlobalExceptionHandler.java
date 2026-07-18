@@ -9,7 +9,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiResponse<Void>> handleRuntime(RuntimeException ex) {
-        return ResponseEntity.badRequest().body(
+        // Now it will print server errors (like email crashes) to Render logs!
+        System.out.println("Server Error (500): " + ex.getMessage());
+        ex.printStackTrace();
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 ApiResponse.<Void>builder()
                         .success(false)
                         .message(ex.getMessage())
@@ -19,6 +23,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleNotFound(ResourceNotFoundException ex) {
+        System.out.println("Not Found (404): " + ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 ApiResponse.<Void>builder()
                         .success(false)
@@ -29,6 +34,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse<Void>> handleIllegalArgument(IllegalArgumentException ex) {
+        // This is the magic line that exposes your silent 400 validation errors!
+        System.out.println("Validation Error (400): " + ex.getMessage());
+
         return ResponseEntity.badRequest().body(
                 ApiResponse.<Void>builder()
                         .success(false)
@@ -39,6 +47,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleAll(Exception ex) {
+        System.out.println("Unknown Error (500): " + ex.getMessage());
+        ex.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 ApiResponse.<Void>builder()
                         .success(false)
