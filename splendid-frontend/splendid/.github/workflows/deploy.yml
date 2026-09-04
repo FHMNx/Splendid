@@ -1,0 +1,47 @@
+name: Splendid CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main # Triggers every time you push to the main branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Build & Push Backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./splendid-backend
+          push: true
+          tags: fhmnx/splendid-backend:latest
+
+      - name: Build & Push Frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./splendid-frontend/splendid
+          push: true
+          tags: fhmnx/splendid-frontend:latest
+
+      - name: Deploy to Contabo VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: root
+          password: ${{ secrets.VPS_PASSWORD }}
+          script: |
+            # Navigate to aaPanel's docker-compose folder for this project
+            cd /www/server/panel/data/compose/splendid
+            
+            # Pull the fresh images and reboot the containers smoothly
+            docker compose pull
+            docker compose up -d
