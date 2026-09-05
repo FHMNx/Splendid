@@ -26,7 +26,14 @@ jobs:
           tags: fhmnx/splendid-backend:latest
 
       - name: Inject Frontend Env Vars
-        run: echo "VITE_API_URL=https://splendid-api.moonfleet.lk" > ./splendid-frontend/splendid/.env
+        run: |
+          echo "VITE_GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}" > ./splendid-frontend/splendid/.env
+          echo "VITE_WHATSAPP_NUMBER=94753837635" >> ./splendid-frontend/splendid/.env
+          echo "VITE_PAYHERE_MERCHANT_ID=1228621" >> ./splendid-frontend/splendid/.env
+          echo "VITE_PAYHERE_NOTIFY_URL=https://splendid-api.moonfleet.lk/api/payments/payhere/notify" >> ./splendid-frontend/splendid/.env
+          echo "VITE_PAYHERE_RETURN_URL=https://splendid.moonfleet.lk/dashboard" >> ./splendid-frontend/splendid/.env
+          echo "VITE_PAYHERE_CANCEL_URL=https://splendid.moonfleet.lk/packages" >> ./splendid-frontend/splendid/.env
+          echo "VITE_API_URL=https://splendid-api.moonfleet.lk" >> ./splendid-frontend/splendid/.env
 
       - name: Build & Push Frontend
         uses: docker/build-push-action@v5
