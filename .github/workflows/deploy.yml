@@ -25,6 +25,9 @@ jobs:
           push: true
           tags: fhmnx/splendid-backend:latest
 
+      - name: Inject Frontend Env Vars
+        run: echo "VITE_API_URL=https://splendid-api.moonfleet.lk" > ./splendid-frontend/splendid/.env
+
       - name: Build & Push Frontend
         uses: docker/build-push-action@v5
         with:
