@@ -22,7 +22,7 @@ services:
     depends_on:
       - mysql-db
     environment:
-     
+      APP_FRONTEND_URL: "https://splendid.moonfleet.lk"
       APP_LOGO_URL: "https://res.cloudinary.com/dmht8yyea/image/upload/q_auto/f_auto/v1777136456/splendid_hqpges.png"
 
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/${DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
@@ -39,10 +39,6 @@ services:
 
   # 3. React/Vite Frontend
   frontend:
-    build:
-      context: ./splendid-frontend/splendid
-      args:
-        - VITE_API_URL=http://56.228.23.20:8080
     image: splendid-frontend:v1
     container_name: splendid-frontend-app
     ports:
