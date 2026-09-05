@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # 1. The Database
   mysql-db:
@@ -15,7 +13,7 @@ services:
 
   # 2. Spring Boot Backend
   backend:
-    image: splendid-backend:v1
+    image: fhmnx/splendid-backend:latest
     container_name: splendid-backend-app
     ports:
       - "8080:8080"
@@ -39,7 +37,7 @@ services:
 
   # 3. React/Vite Frontend
   frontend:
-    image: splendid-frontend:v1
+    image: fhmnx/splendid-frontend:latest
     container_name: splendid-frontend-app
     ports:
       - "3000:80" # This maps your browser's localhost:3000 to the NGINX port 80
