@@ -75,7 +75,9 @@ const Register = () => {
         password: "",
       });
     } catch (error) {
-      toast.error("Registration failed");
+      const errorMessage =
+        error.response?.data?.message || "Registration failed";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
