@@ -1,5 +1,5 @@
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-const GROQ_MODEL = "llama3-8b-8192";
+const GROQ_MODEL = "mixtral-8x7b-32768";
 
 export const sendMessageToGroq = async (messages, financialContext) => {
 
