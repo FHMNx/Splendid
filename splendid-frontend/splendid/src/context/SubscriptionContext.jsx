@@ -6,50 +6,65 @@ const SubscriptionContext = createContext();
 export const useSubscription = () => useContext(SubscriptionContext);
 
 export const SubscriptionProvider = ({ children }) => {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, token, logout } = useAuth();
 
     const [subscription, setSubscription] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [lastChecked, setLastChecked] = useState(null);
 
     const checkSubscription = useCallback(async () => {
-        if (!isAuthenticated) return;
+        // Guard: Ensure both isAuthenticated and a valid token exist
+        if (!isAuthenticated || !token) {
+            setSubscription(null);
+            setIsLoading(false);
+            return;
+        }
 
         setIsLoading(true);
         try {
             const res = await getSubscriptionStatus();
-            console.log("Subscription data:", res.data);
             setSubscription(res.data);
             setLastChecked(Date.now());
-        } catch(error) {
-            console.error("Subscription fetch error:", error);
-            setSubscription(null);
+        } catch (error) {
+            const status = error?.response?.status;
+
+            // Gracefully handle 401 / 403 (expired or invalid token)
+            if (status === 401 || status === 403) {
+                console.warn("Subscription check: Session expired or unauthorized. Clearing stale auth.");
+                setSubscription(null);
+                if (logout) {
+                    logout();
+                }
+            } else {
+                console.error("Subscription fetch error:", error?.message || error);
+                setSubscription(null);
+            }
         } finally {
             setIsLoading(false);
         }
-    }, [isAuthenticated]);
+    }, [isAuthenticated, token, logout]);
 
-    // check on login
+    // Sync on authentication status change
     useEffect(() => {
-        if (isAuthenticated) {
+        if (isAuthenticated && token) {
             checkSubscription();
         } else {
             setSubscription(null);
             setLastChecked(null);
-            setIsLoading(true);
+            setIsLoading(false);
         }
-    }, [isAuthenticated]);
+    }, [isAuthenticated, token, checkSubscription]);
 
-    // recheck every 30 minutes
+    // Periodic recheck (every 30 mins) only for active authenticated sessions
     useEffect(() => {
-        if (!isAuthenticated) return;
+        if (!isAuthenticated || !token) return;
 
         const interval = setInterval(() => {
             checkSubscription();
         }, 30 * 60 * 1000); // 30 minutes
 
         return () => clearInterval(interval);
-    }, [isAuthenticated, checkSubscription]);
+    }, [isAuthenticated, token, checkSubscription]);
 
     const value = {
         subscription,
