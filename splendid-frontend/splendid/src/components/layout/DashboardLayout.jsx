@@ -23,7 +23,7 @@ const DashboardLayout = () => {
   }, []);
 
   const fullName = user ? `${user.firstName} ${user.lastName}` : "User";
-  const avatarUrl = profileImageUrl ||
+  const avatarUrl = user?.profileImageUrl || profileImageUrl ||
     `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=d1fae5&color=065f46&size=80`;
 
   const openSidebar = () => setIsSidebarOpen(true);

@@ -8,7 +8,7 @@ import { getProfile, updateProfile, changePassword , updateProfileImage  } from 
 import { getTransactionsSummary } from "../features/transactions/transactionAPI";
 
 const Profile = () => {
-  const { logout } = useAuth();
+  const { logout, fetchUser } = useAuth();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const [profileImage, setProfileImage] = useState(null);
@@ -84,6 +84,9 @@ const Profile = () => {
         const res = await updateProfileImage(base64);
         setProfile(res.data);
         setProfileImage(res.data.profileImageUrl);
+        if (fetchUser) {
+          await fetchUser();
+        }
         toast.success("Profile photo updated");
       } catch (error) {
         console.error("Upload error:", error);
@@ -114,6 +117,9 @@ const Profile = () => {
     try {
       const res = await updateProfile(formData);
       setProfile(res.data);
+      if (fetchUser) {
+        await fetchUser();
+      }
       toast.success("Profile updated successfully");
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to update profile");
