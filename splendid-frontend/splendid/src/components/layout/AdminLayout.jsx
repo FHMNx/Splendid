@@ -145,7 +145,7 @@ const AdminLayout = () => {
                             className="inline-flex items-center gap-2 rounded-full border border-transparent px-2 py-1.5 text-zinc-700 transition hover:border-emerald-100 hover:bg-emerald-50"
                         >
                             <img
-                                src={adminAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                                src={user?.profileImageUrl || adminAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(
                                     (user?.firstName ?? "A") + " " + (user?.lastName ?? "")
                                 )}&background=d1fae5&color=065f46&size=80`}
                                 alt="Admin avatar"
