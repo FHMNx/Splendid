@@ -21,6 +21,17 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidCredentials(InvalidCredentialsException ex) {
+        System.out.println("Authentication Error (401): " + ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                ApiResponse.<Void>builder()
+                        .success(false)
+                        .message(ex.getMessage())
+                        .build()
+        );
+    }
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleNotFound(ResourceNotFoundException ex) {
         System.out.println("Not Found (404): " + ex.getMessage());
