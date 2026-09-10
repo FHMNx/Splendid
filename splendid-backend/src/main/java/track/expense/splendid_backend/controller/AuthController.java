@@ -76,9 +76,8 @@ public class AuthController {
 
     @Operation(summary = "Reset password using token")
     @PostMapping("/reset-password")
-    public ResponseEntity<ApiResponse<String>> resetPassword(@RequestParam String token,
-                                                             @RequestParam String password) {
-        userService.resetPassword(token, password);
+    public ResponseEntity<ApiResponse<String>> resetPassword(@RequestBody ResetPasswordRequestDto request) {
+        userService.resetPassword(request.getToken(), request.getPassword());
         return ResponseEntity.ok(ApiResponse.<String>builder()
                 .success(true)
                 .message("Password reset successful")
