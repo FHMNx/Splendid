@@ -81,7 +81,7 @@ const Header = ({
   const handleLogOut = () => {
     logout();
     toast.success("Logged out successfully");
-    navigate("/login");
+    navigate("/");
   };
 
   useEffect(() => {

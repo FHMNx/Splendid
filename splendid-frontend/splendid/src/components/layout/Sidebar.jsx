@@ -21,7 +21,7 @@ const Sidebar = ({ isMobileOpen = false, onClose = () => { } }) => {
   const handleLogOut = async () => {
     logout();
     toast.success("Logged out successfully");
-    navigate("/login");
+    navigate("/");
   }
 
   const transactionSubmenu = [
