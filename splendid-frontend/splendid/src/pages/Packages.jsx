@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 import PageTitle from '../components/PageTitle';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { Check, Sparkles, Zap, Crown, Gift } from 'lucide-react';
 import { useAuth } from "../context/AuthContext";
+import { useSubscription } from "../context/SubscriptionContext";
 import { launchPayHereCheckout } from "../services/payhereService";
 
 const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER;
@@ -125,6 +128,8 @@ const COLOR_MAP = {
 };
 
 const PackageCard = ({ pkg, isSelected, onSelect, user, isFree }) => {
+  const navigate = useNavigate();
+  const { checkSubscription } = useSubscription();
   const colors = COLOR_MAP[pkg.color];
   const Icon = pkg.icon;
 
@@ -139,7 +144,8 @@ const PackageCard = ({ pkg, isSelected, onSelect, user, isFree }) => {
     e.stopPropagation();
 
     if (!user) {
-      alert("Please log in to purchase a plan.");
+      toast.error("Please log in to purchase a plan.");
+      navigate("/login");
       return;
     }
 
@@ -156,9 +162,13 @@ const PackageCard = ({ pkg, isSelected, onSelect, user, isFree }) => {
       user,
       planKey,
       // onSuccess
-      (orderId) => {
+      async (orderId) => {
         setIsPaying(false);
-        alert("Payment successful! Your subscription is being activated. Please refresh in a moment.");
+        toast.success("Payment successful! Your subscription is now active.");
+        if (checkSubscription) {
+          await checkSubscription();
+        }
+        navigate("/dashboard");
       },
       // onDismissed
       () => {
@@ -167,7 +177,7 @@ const PackageCard = ({ pkg, isSelected, onSelect, user, isFree }) => {
       // onError
       (error) => {
         setIsPaying(false);
-        alert("Payment failed. Please try again or contact us via WhatsApp.");
+        toast.error("Payment failed. Please try again or contact us via WhatsApp.");
       }
     );
   };
