@@ -153,7 +153,7 @@ const AdminSettings = () => {
     const handleLogout = () => {
         logout();
         toast.success("Logged out successfully");
-        navigate("/login");
+        navigate("/");
     };
 
     const toggleShow = (field) => {

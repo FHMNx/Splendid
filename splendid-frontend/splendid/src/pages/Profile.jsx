@@ -151,7 +151,7 @@ const Profile = () => {
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    navigate("/");
     toast.success("Logged out successfully");
   };
 
