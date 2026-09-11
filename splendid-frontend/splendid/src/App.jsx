@@ -38,7 +38,9 @@ const App = () => {
         {/* Public */}
         <Route path="/" element={<Home />} />
         <Route path="/about-us" element={<About />} />
+        <Route path="/about" element={<Navigate to="/about-us" replace />} />
         <Route path="/contact-us" element={<Contact />} />
+        <Route path="/contact" element={<Navigate to="/contact-us" replace />} />
         <Route path="/packages" element={<Packages />} />
 
         <Route element={<PublicRoute />}>

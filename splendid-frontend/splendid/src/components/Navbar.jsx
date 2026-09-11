@@ -3,9 +3,14 @@ import { Link } from "react-router-dom";
 import { User, Menu, X } from "lucide-react";
 import logo from "../assets/splendid.png";
 
+import { useAuth } from "../context/AuthContext";
+
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const isAuthenticated = false;
+  const { isAuthenticated, user } = useAuth();
+
+  const isUserAdmin = user?.role === "ADMIN";
+  const dashboardLink = isUserAdmin ? "/admin/dashboard" : "/dashboard";
 
   return (
     <nav className="sticky top-0 w-full bg-white/80 backdrop-blur-md shadow-md z-50">
@@ -18,20 +23,29 @@ const Navbar = () => {
 
         <div className="hidden md:flex items-center gap-8 font-medium">
           <Link className="text-gray-700 hover:text-green-600 transition" to="/">Home</Link>
-          <Link className="text-gray-700 hover:text-green-600 transition" to="/">Features</Link>
-          <Link className="text-gray-700 hover:text-green-600 transition" to="/">About</Link>
-          <Link className="text-gray-700 hover:text-green-600 transition" to="/">Contact</Link>
+          <Link className="text-gray-700 hover:text-green-600 transition" to="/about-us">About</Link>
           <Link className="text-gray-700 hover:text-green-600 transition" to="/packages">Packages</Link>
+          <Link className="text-gray-700 hover:text-green-600 transition" to="/contact-us">Contact</Link>
         </div>
 
         <div className="hidden md:flex items-center gap-3">
-          {!isAuthenticated && (
+          {!isAuthenticated ? (
             <>
-              <Link to="/register" className="flex items-center gap-2 bg-green-800 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
-                <User size={18} />
+              <Link to="/login" className="text-sm font-semibold text-gray-700 hover:text-green-600 transition px-3 py-2">
+                Log In
+              </Link>
+              <Link to="/register" className="flex items-center gap-2 bg-green-800 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition text-sm font-medium">
+                <User size={16} />
                 Register
               </Link>
             </>
+          ) : (
+            <Link
+              to={dashboardLink}
+              className="flex items-center gap-2 bg-green-800 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition text-sm font-medium"
+            >
+              Dashboard
+            </Link>
           )}
         </div>
 
@@ -54,10 +68,9 @@ const Navbar = () => {
           {/* Links */}
           {[
             { name: "Home", path: "/" },
-            { name: "Features", path: "/" },
-            { name: "About", path: "/" },
-            { name: "Contact", path: "/" },
-            { name: "Packages", path: "/packages" }
+            { name: "About", path: "/about-us" },
+            { name: "Packages", path: "/packages" },
+            { name: "Contact", path: "/contact-us" }
           ].map((item) => (
             <Link
               key={item.name}
@@ -70,17 +83,34 @@ const Navbar = () => {
           ))}
 
           {/* Auth Section */}
-          {!isAuthenticated && (
-            <div className="pt-3 flex flex-col gap-2">
+          <div className="pt-3 flex flex-col gap-2">
+            {!isAuthenticated ? (
+              <>
+                <Link
+                  to="/login"
+                  onClick={() => setMenuOpen(false)}
+                  className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 text-center hover:bg-gray-50 transition"
+                >
+                  Log In
+                </Link>
+                <Link
+                  to="/register"
+                  onClick={() => setMenuOpen(false)}
+                  className="px-4 py-2 rounded-lg bg-green-800 text-white text-center hover:bg-green-700 transition"
+                >
+                  Register
+                </Link>
+              </>
+            ) : (
               <Link
-                to="/register"
+                to={dashboardLink}
                 onClick={() => setMenuOpen(false)}
-                className="px-4 py-2 rounded-lg bg-green-800 text-white text-center hover:bg-green-700 transition">
-                Register
+                className="px-4 py-2 rounded-lg bg-green-800 text-white text-center hover:bg-green-700 transition"
+              >
+                Go to Dashboard
               </Link>
-
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </nav>

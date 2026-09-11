@@ -26,6 +26,9 @@ public class EmailServiceImpl implements EmailService {
     @Value("${app.email.sender}")
     private String fromEmail;
 
+    @Value("${app.admin.email:support@moonfleet.lk}")
+    private String adminEmail;
+
     @Override
     public void sendVerificationEmail(String to, String name, String token) {
         String verificationLink = frontendUrl + "/verify?token=" + token;
@@ -48,6 +51,48 @@ public class EmailServiceImpl implements EmailService {
 
         String html = templateEngine.process("email/reset-password-email", context);
         sendHtmlEmail(to, "Reset Your Password - Splendid", html);
+    }
+
+    @Override
+    public void sendContactConfirmationEmail(String userEmail, String userName, String subject) {
+        String safeName = (userName != null && !userName.isBlank()) ? userName : "there";
+        String html = "<div style=\"font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;\">"
+                + "<div style=\"text-align: center; margin-bottom: 20px;\">"
+                + "<img src=\"" + LOGO_URL + "\" alt=\"Splendid Logo\" style=\"height: 50px;\" />"
+                + "<h2 style=\"color: #059669; margin-top: 10px;\">We've Received Your Message</h2>"
+                + "</div>"
+                + "<p>Hi " + safeName + ",</p>"
+                + "<p>Thank you for reaching out to <strong>Splendid Support</strong>. We have received your inquiry regarding <strong>\"" + subject + "\"</strong>.</p>"
+                + "<p>Our support team is reviewing your message and will get back to you as soon as possible.</p>"
+                + "<div style=\"background-color: #f0fdf4; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #059669;\">"
+                + "<p style=\"margin: 0; color: #166534; font-size: 14px;\">If you have any further details or updates to provide, please reply directly to this email.</p>"
+                + "</div>"
+                + "<p>Best regards,<br/><strong>The Splendid Team</strong></p>"
+                + "</div>";
+
+        sendHtmlEmail(userEmail, "We received your message - Splendid Support", html);
+    }
+
+    @Override
+    public void sendAdminContactNotification(String userEmail, String userName, String subject, String message) {
+        String safeName = (userName != null && !userName.isBlank()) ? userName : "User";
+        String html = "<div style=\"font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;\">"
+                + "<div style=\"text-align: center; margin-bottom: 20px;\">"
+                + "<img src=\"" + LOGO_URL + "\" alt=\"Splendid Logo\" style=\"height: 50px;\" />"
+                + "<h2 style=\"color: #059669; margin-top: 10px;\">New Support Inquiry</h2>"
+                + "</div>"
+                + "<table style=\"width: 100%; border-collapse: collapse; margin-bottom: 20px;\">"
+                + "<tr><td style=\"padding: 8px 0; font-weight: bold; width: 130px; color: #374151;\">User Name:</td><td>" + safeName + "</td></tr>"
+                + "<tr><td style=\"padding: 8px 0; font-weight: bold; color: #374151;\">User Email:</td><td><a href=\"mailto:" + userEmail + "\" style=\"color: #059669;\">" + userEmail + "</a></td></tr>"
+                + "<tr><td style=\"padding: 8px 0; font-weight: bold; color: #374151;\">Subject:</td><td>" + subject + "</td></tr>"
+                + "</table>"
+                + "<div style=\"background-color: #f9fafb; padding: 15px; border-radius: 6px; border: 1px solid #e5e7eb;\">"
+                + "<h4 style=\"margin-top: 0; margin-bottom: 8px; color: #111827;\">Message:</h4>"
+                + "<p style=\"white-space: pre-wrap; margin: 0; color: #374151;\">" + message + "</p>"
+                + "</div>"
+                + "</div>";
+
+        sendHtmlEmail(adminEmail, "[Splendid Support] Inquiry from " + safeName + ": " + subject, html);
     }
 
     private void sendHtmlEmail(String to, String subject, String htmlContent) {
