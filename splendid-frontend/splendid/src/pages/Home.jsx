@@ -361,123 +361,107 @@ function Home() {
       </section>
 
       {/* CONTACT US */}
-      <section className="relative overflow-hidden bg-gray-200 py-16 text-green-800">
+      <section className="relative overflow-hidden bg-slate-100 py-16">
         <div className="relative mx-auto grid max-w-6xl gap-8 px-4 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="rounded-3xl border border-green-200 bg-white p-6 shadow-xl sm:p-8">
-            <p className="inline-flex rounded-full border border-green-200 bg-green-50 px-4 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-green-800">
-              Contact us
-            </p>
-            <h2 className="mt-4 text-3xl font-bold md:text-4xl">
-              Let&apos;s build better money habits together
-            </h2>
-            <p className="mt-3 max-w-xl text-sm leading-7 text-green-700 md:text-base">
-              Have questions about features, onboarding, or support? Send us a
-              message and our team will get back to you quickly.
-            </p>
-
-            <form className="mt-8 grid gap-4 sm:grid-cols-2">
-              <div className="sm:col-span-1">
-                <label className="mb-1 block text-sm text-green-700">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  placeholder="Your full name"
-                  className="w-full rounded-xl border border-green-600 bg-white/90 px-4 py-3 text-slate-800 outline-none transition focus:border-green-800 focus:ring-2 focus:ring-green-600/60"
-                />
+          <div className="flex flex-col justify-between rounded-3xl border border-emerald-100 bg-white p-6 shadow-xl sm:p-8">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.25em] text-emerald-800">
+                <Sparkles size={14} className="text-emerald-600" />
+                Support Center
               </div>
+              <h2 className="mt-4 text-3xl font-bold text-slate-900 md:text-4xl">
+                Let&apos;s build better money habits together
+              </h2>
+              <p className="mt-3 max-w-xl text-sm leading-7 text-slate-600 md:text-base">
+                Need help with your account or have a feature request? Our support team is ready to assist you. Submit an inquiry through our dedicated support portal for personalized assistance.
+              </p>
 
-              <div className="sm:col-span-1">
-                <label className="mb-1 block text-sm text-green-700">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  placeholder="you@example.com"
-                  className="w-full rounded-xl border border-green-600 bg-white/90 px-4 py-3 text-slate-800 outline-none transition focus:border-green-800 focus:ring-2 focus:ring-green-600/60"
-                />
+              <div className="mt-6 space-y-3">
+                <div className="flex items-center gap-3 text-sm text-slate-700">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 shrink-0">
+                    <CheckCircle2 size={16} />
+                  </div>
+                  <span>Direct assistance from our dedicated support team</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm text-slate-700">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 shrink-0">
+                    <CheckCircle2 size={16} />
+                  </div>
+                  <span>Automated email confirmation & ticket logging</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm text-slate-700">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 shrink-0">
+                    <CheckCircle2 size={16} />
+                  </div>
+                  <span>Quick response time — typically within 2-4 business hours</span>
+                </div>
               </div>
+            </div>
 
-              <div className="sm:col-span-2">
-                <label className="mb-1 block text-sm text-green-700">
-                  Subject
-                </label>
-                <input
-                  type="text"
-                  placeholder="How can we help?"
-                  className="w-full rounded-xl border border-green-600 bg-white/90 px-4 py-3 text-slate-800 outline-none transition focus:border-green-800 focus:ring-2 focus:ring-green-600/60"
-                />
-              </div>
-
-              <div className="sm:col-span-2">
-                <label className="mb-1 block text-sm text-green-700">
-                  Message
-                </label>
-                <textarea
-                  rows={5}
-                  placeholder="Tell us what you need..."
-                  className="w-full resize-none rounded-xl border border-green-600 bg-white/90 px-4 py-3 text-slate-800 outline-none transition focus:border-green-800 focus:ring-2 focus:ring-green-600/60"
-                />
-              </div>
-
-              <div className="sm:col-span-2">
-                <button
-                  type="button"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-green-800 px-6 py-3 font-semibold text-white transition hover:bg-green-700"
-                >
-                  Send Message <ArrowRight size={18} />
-                </button>
-              </div>
-            </form>
+            <div className="mt-8 pt-6 border-t border-slate-100">
+              <Link
+                to="/contact"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-800 px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-emerald-800/20 transition hover:-translate-y-0.5 hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800 sm:w-auto"
+              >
+                Go to Support Center <ArrowRight size={18} />
+              </Link>
+            </div>
           </div>
 
           <aside className="grid gap-4 self-start">
-            <div className="rounded-3xl border border-green-200 bg-white p-6 shadow-xl">
-              <h3 className="text-xl font-semibold">We&apos;re Here To Help</h3>
-              <p className="mt-2 text-sm leading-7 text-green-700">
-                Reach out for onboarding help, feature guidance, or partnership
-                opportunities. We respond in under one business day.
+            <div className="rounded-3xl border border-emerald-100 bg-white p-6 shadow-xl">
+              <h3 className="text-xl font-semibold text-slate-900">We&apos;re Here To Help</h3>
+              <p className="mt-2 text-sm leading-7 text-slate-600">
+                Reach out for onboarding help, feature guidance, or subscription inquiries. We respond in under one business day.
               </p>
             </div>
 
-            <div className="space-y-3 rounded-3xl border border-green-200 bg-white p-6 shadow-xl">
+            <div className="space-y-4 rounded-3xl border border-emerald-100 bg-white p-6 shadow-xl">
               <div className="flex items-start gap-3">
-                <Mail size={18} className="mt-1 text-green-700" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-50 text-emerald-700 shrink-0">
+                  <Mail size={16} />
+                </div>
                 <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-green-800 font-bold">
+                  <p className="text-xs uppercase tracking-[0.2em] text-emerald-800 font-bold">
                     Email
                   </p>
-                  <p className="text-sm text-green-800">support@splendid.app</p>
+                  <p className="text-sm text-slate-700">support@moonfleet.lk</p>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
-                <Phone size={18} className="mt-1 text-green-700" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-50 text-emerald-700 shrink-0">
+                  <Phone size={16} />
+                </div>
                 <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-green-800 font-bold">
-                    Phone
+                  <p className="text-xs uppercase tracking-[0.2em] text-emerald-800 font-bold">
+                    Phone / WhatsApp
                   </p>
-                  <p className="text-sm text-green-800">+94 75 383 7635</p>
+                  <p className="text-sm text-slate-700">+94 753 837 635</p>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
-                <MapPin size={18} className="mt-1 text-green-700" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-50 text-emerald-700 shrink-0">
+                  <MapPin size={16} />
+                </div>
                 <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-green-800 font-bold">
+                  <p className="text-xs uppercase tracking-[0.2em] text-emerald-800 font-bold">
                     Office
                   </p>
-                  <p className="text-sm text-green-800">Kandy 07, Sri Lanka</p>
+                  <p className="text-sm text-slate-700">Kandy 07, Sri Lanka</p>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
-                <Clock3 size={18} className="mt-1 text-green-700" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-50 text-emerald-700 shrink-0">
+                  <Clock3 size={16} />
+                </div>
                 <div>
-                  <p className="text-xs uppercase tracking-[0.2em]  text-green-800 font-bold">
+                  <p className="text-xs uppercase tracking-[0.2em] text-emerald-800 font-bold">
                     Hours
                   </p>
-                  <p className="text-sm text-green-800">
+                  <p className="text-sm text-slate-700">
                     Mon - Fri, 9:00 AM - 6:00 PM
                   </p>
                 </div>
