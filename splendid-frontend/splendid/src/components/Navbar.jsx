@@ -23,6 +23,7 @@ const Navbar = () => {
 
         <div className="hidden md:flex items-center gap-8 font-medium">
           <Link className="text-gray-700 hover:text-green-600 transition" to="/">Home</Link>
+          <Link className="text-gray-700 hover:text-green-600 transition" to="/features">Features</Link>
           <Link className="text-gray-700 hover:text-green-600 transition" to="/about-us">About</Link>
           <Link className="text-gray-700 hover:text-green-600 transition" to="/packages">Packages</Link>
           <Link className="text-gray-700 hover:text-green-600 transition" to="/contact-us">Contact</Link>
@@ -68,6 +69,7 @@ const Navbar = () => {
           {/* Links */}
           {[
             { name: "Home", path: "/" },
+            { name: "Features", path: "/features" },
             { name: "About", path: "/about-us" },
             { name: "Packages", path: "/packages" },
             { name: "Contact", path: "/contact-us" }

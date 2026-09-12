@@ -13,7 +13,9 @@ import logo from "../assets/splendid.png";
 const Footer = () => {
   const quickLinks = [
     { label: "Home", to: "/" },
+    { label: "Features", to: "/features" },
     { label: "About", to: "/about-us" },
+    { label: "Packages", to: "/packages" },
     { label: "Contact", to: "/contact-us" },
   ];
 
