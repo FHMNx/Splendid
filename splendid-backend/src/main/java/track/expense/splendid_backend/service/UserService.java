@@ -5,6 +5,7 @@ import track.expense.splendid_backend.dto.*;
 public interface UserService {
     void register(RegisterRequestDto request);
     AuthResponseDto login(LoginRequestDto request);
+    AuthResponseDto googleLogin(GoogleLoginRequestDto request);
     void requestPasswordReset(String email);
     void resetPassword(String token, String newPassword);
     String verifyEmail(String token);

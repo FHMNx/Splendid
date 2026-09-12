@@ -24,8 +24,12 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    @Column(name = "auth_provider")
+    private AuthProvider authProvider = AuthProvider.LOCAL;
 
     @Enumerated(EnumType.STRING)
     private Role role;
