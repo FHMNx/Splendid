@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { getProfile } from "../features/auth/authAPI";
+import { getProfile, googleLogin } from "../features/auth/authAPI";
 
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
@@ -56,6 +56,18 @@ export const AuthProvider = ({ children }) => {
     setUser(data);
   };
 
+  const loginWithGoogle = async (idToken) => {
+    const res = await googleLogin(idToken);
+    const data = res.data;
+    if (data && data.token) {
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data));
+      setToken(data.token);
+      setUser(data);
+    }
+    return res;
+  };
+
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -71,6 +83,7 @@ export const AuthProvider = ({ children }) => {
       fetchUser,
       loadUser: fetchUser,
       login,
+      loginWithGoogle,
       logout,
       setUser,
     }}>

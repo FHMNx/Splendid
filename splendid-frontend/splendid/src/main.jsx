@@ -3,11 +3,14 @@ import "./index.css";
 import App from "./App.jsx";
 import { AuthProvider } from "./context/AuthContext";
 import { SubscriptionProvider } from "./context/SubscriptionContext";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 createRoot(document.getElementById("root")).render(
-  <AuthProvider>
-    <SubscriptionProvider>
-      <App />
-    </SubscriptionProvider>
-  </AuthProvider>,
+  <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+    <AuthProvider>
+      <SubscriptionProvider>
+        <App />
+      </SubscriptionProvider>
+    </AuthProvider>
+  </GoogleOAuthProvider>,
 );

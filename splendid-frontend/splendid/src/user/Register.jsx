@@ -1,12 +1,16 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import PageTitle from "../components/PageTitle";
-import { useState } from "react";
 import logo from "../assets/splendid.png";
 import { toast } from "react-hot-toast";
 import { registerUser } from "../features/auth/authAPI";
+import { useAuth } from "../context/AuthContext";
+import { GoogleLogin } from "@react-oauth/google";
 
 const Register = () => {
+  const navigate = useNavigate();
+  const { loginWithGoogle } = useAuth();
+
   const [user, setUser] = useState({
     firstName: "",
     lastName: "",
@@ -81,6 +85,30 @@ const Register = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      setLoading(true);
+      const response = await loginWithGoogle(credentialResponse.credential);
+      const data = response.data;
+      toast.success(`Welcome to Splendid, ${data.firstName}!`);
+
+      if (data.role === "ADMIN") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      const message = error?.response?.data?.message || "Google sign in failed. Please try again.";
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    toast.error("Google sign up failed. Please try again.");
   };
 
   return (
@@ -188,10 +216,28 @@ const Register = () => {
 
             <button
               disabled={loading}
-              className="w-full bg-green-800 hover:bg-green-700 text-white font-semibold py-3 rounded-2xl shadow-lg shadow-gray-400 transition-all active:scale-[0.98]"
+              className="w-full bg-green-800 hover:bg-green-700 text-white font-semibold py-3 rounded-2xl shadow-lg shadow-gray-400 transition-all active:scale-[0.98] disabled:opacity-60"
             >
               {loading ? "Registering..." : "Register Now"}
             </button>
+
+            <div className="relative flex items-center justify-center my-4">
+              <div className="border-t border-gray-200 w-full"></div>
+              <span className="bg-white px-3 text-xs text-gray-500 font-medium uppercase">or</span>
+              <div className="border-t border-gray-200 w-full"></div>
+            </div>
+
+            <div className="flex justify-center w-full">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                shape="pill"
+                theme="outline"
+                size="large"
+                width="100%"
+                text="signup_with"
+              />
+            </div>
 
             <p className="text-sm text-center text-green-700">
               Already have an account?{" "}
