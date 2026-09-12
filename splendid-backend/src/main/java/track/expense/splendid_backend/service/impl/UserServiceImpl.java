@@ -130,31 +130,71 @@ public class UserServiceImpl implements UserService {
     @Override
     public AuthResponseDto googleLogin(GoogleLoginRequestDto request) {
         if (request.getIdToken() == null || request.getIdToken().isBlank()) {
-            throw new InvalidCredentialsException("Google ID Token is required");
+            throw new InvalidCredentialsException("Google token is required");
         }
 
         try {
-            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
-                    GoogleNetHttpTransport.newTrustedTransport(),
-                    GsonFactory.getDefaultInstance())
-                    .setAudience(Collections.singletonList(googleClientId))
-                    .build();
+            String tokenString = request.getIdToken().trim();
+            String email = null;
+            String firstName = null;
+            String lastName = null;
 
-            GoogleIdToken idToken = verifier.verify(request.getIdToken());
-            if (idToken == null) {
-                throw new InvalidCredentialsException("Invalid Google token");
+            // Check if it's a JWT ID Token (contains 3 dot-separated segments)
+            if (tokenString.split("\\.").length == 3) {
+                GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
+                        GoogleNetHttpTransport.newTrustedTransport(),
+                        GsonFactory.getDefaultInstance())
+                        .setAudience(Collections.singletonList(googleClientId))
+                        .build();
+
+                GoogleIdToken idToken = verifier.verify(tokenString);
+                if (idToken == null) {
+                    throw new InvalidCredentialsException("Invalid Google token");
+                }
+
+                GoogleIdToken.Payload payload = idToken.getPayload();
+                email = payload.getEmail();
+                firstName = (String) payload.get("given_name");
+                lastName = (String) payload.get("family_name");
+
+                if (firstName == null || firstName.isBlank()) {
+                    firstName = (String) payload.get("name");
+                }
+            } else {
+                // It's a Google OAuth2 Access Token (from useGoogleLogin)
+                org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
+                org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+                headers.setBearerAuth(tokenString);
+                org.springframework.http.HttpEntity<Void> entity = new org.springframework.http.HttpEntity<>(headers);
+
+                try {
+                    org.springframework.http.ResponseEntity<Map> response = restTemplate.exchange(
+                            "https://www.googleapis.com/oauth2/v3/userinfo",
+                            org.springframework.http.HttpMethod.GET,
+                            entity,
+                            Map.class
+                    );
+
+                    Map<String, Object> body = response.getBody();
+                    if (body != null) {
+                        email = (String) body.get("email");
+                        firstName = (String) body.get("given_name");
+                        lastName = (String) body.get("family_name");
+                        if (firstName == null || firstName.isBlank()) {
+                            firstName = (String) body.get("name");
+                        }
+                    }
+                } catch (Exception ex) {
+                    throw new InvalidCredentialsException("Invalid Google access token: " + ex.getMessage());
+                }
             }
 
-            GoogleIdToken.Payload payload = idToken.getPayload();
-            String email = payload.getEmail();
-            String firstName = (String) payload.get("given_name");
-            String lastName = (String) payload.get("family_name");
+            if (email == null || email.isBlank()) {
+                throw new InvalidCredentialsException("Unable to retrieve email from Google");
+            }
 
             if (firstName == null || firstName.isBlank()) {
-                firstName = (String) payload.get("name");
-                if (firstName == null || firstName.isBlank()) {
-                    firstName = "Google User";
-                }
+                firstName = "Google User";
             }
 
             Optional<User> optionalUser = userRepository.findByEmail(email);
