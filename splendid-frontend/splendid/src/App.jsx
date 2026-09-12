@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter } from "react-router-dom";
 import { Navigate, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
+import Features from "./pages/Features";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
 import Packages from "./pages/Packages";
@@ -37,6 +38,7 @@ const App = () => {
       <Routes>
         {/* Public */}
         <Route path="/" element={<Home />} />
+        <Route path="/features" element={<Features />} />
         <Route path="/about-us" element={<About />} />
         <Route path="/about" element={<Navigate to="/about-us" replace />} />
         <Route path="/contact-us" element={<Contact />} />
