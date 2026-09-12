@@ -10,6 +10,11 @@ export const loginUser = async (credentials) => {
   return response.data;
 };
 
+export const googleLogin = async (idToken) => {
+  const response = await api.post("/auth/google", { idToken });
+  return response.data;
+};
+
 export const forgotPassword = async (email) => {
   const response = await api.post(`/auth/forgot-password?email=${email}`);
   return response.data;
