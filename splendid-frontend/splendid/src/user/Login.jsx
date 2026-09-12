@@ -7,7 +7,7 @@ import { loginUser } from "../features/auth/authAPI";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 import { Eye, EyeOff } from "lucide-react";
-import { GoogleLogin } from "@react-oauth/google";
+import { useGoogleLogin } from "@react-oauth/google";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -62,10 +62,11 @@ const Login = () => {
     }
   };
 
-  const handleGoogleSuccess = async (credentialResponse) => {
+  const handleGoogleSuccess = async (tokenResponse) => {
     try {
       setLoading(true);
-      const response = await loginWithGoogle(credentialResponse.credential);
+      const token = tokenResponse.access_token || tokenResponse.credential;
+      const response = await loginWithGoogle(token);
       const data = response.data;
       toast.success(`Login Successful! Welcome back, ${data.firstName}!`);
 
@@ -82,9 +83,15 @@ const Login = () => {
     }
   };
 
-  const handleGoogleError = () => {
+  const handleGoogleError = (error) => {
+    console.error("Google login error:", error);
     toast.error("Google sign in failed. Please try again.");
   };
+
+  const googleLoginAction = useGoogleLogin({
+    onSuccess: handleGoogleSuccess,
+    onError: handleGoogleError,
+  });
 
   return (
     <>
@@ -178,7 +185,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-green-800 hover:bg-green-700 text-white font-semibold py-3 rounded-2xl shadow-lg shadow-gray-400 transition-all active:scale-[0.98] disabled:opacity-60"
+              className="w-full bg-green-800 hover:bg-green-700 text-white font-semibold py-3 rounded-2xl shadow-lg shadow-gray-400 transition-all active:scale-[0.98] disabled:opacity-60 cursor-pointer"
             >
               {loading ? "Logging in..." : "Login"}
             </button>
@@ -189,16 +196,37 @@ const Login = () => {
               <div className="border-t border-gray-200 w-full"></div>
             </div>
 
-            <div className="flex justify-center w-full">
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={handleGoogleError}
-                shape="pill"
-                theme="outline"
-                size="large"
-                width="100%"
-              />
-            </div>
+            <button
+              type="button"
+              onClick={() => googleLoginAction()}
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-3 border border-gray-200 bg-white hover:bg-gray-50 text-slate-700 font-semibold py-3 rounded-2xl shadow-sm transition-all active:scale-[0.98] disabled:opacity-60 cursor-pointer"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 48 48"
+                className="h-5 w-5"
+                aria-hidden="true"
+              >
+                <path
+                  fill="#FFC107"
+                  d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.3-.4-3.5z"
+                />
+                <path
+                  fill="#FF3D00"
+                  d="M6.3 14.7l6.6 4.8C14.7 15.6 18.9 12 24 12c3 0 5.8 1.1 7.9 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4c-7.7 0-14.3 4.3-17.7 10.7z"
+                />
+                <path
+                  fill="#4CAF50"
+                  d="M24 44c5.2 0 10-2 13.6-5.2l-6.3-5.2c-2.1 1.6-4.6 2.4-7.3 2.4-5.2 0-9.6-3.3-11.2-8l-6.6 5.1C9.6 39.5 16.2 44 24 44z"
+                />
+                <path
+                  fill="#1976D2"
+                  d="M43.6 20.5H42V20H24v8h11.3c-.8 2.5-2.3 4.5-4 5.9l.1-.1 6.3 5.2C37.3 39.3 44 34 44 24c0-1.3-.1-2.3-.4-3.5z"
+                />
+              </svg>
+              Sign in with Google
+            </button>
 
             <p className="text-sm text-center text-green-700">
               Do not have an account?{" "}
