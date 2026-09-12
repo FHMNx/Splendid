@@ -190,9 +190,9 @@ const Login = () => {
               {loading ? "Logging in..." : "Login"}
             </button>
 
-            <div className="relative flex items-center justify-center my-4">
+            <div className="relative flex items-center justify-center my-2">
               <div className="border-t border-gray-200 w-full"></div>
-              <span className="bg-white px-3 text-xs text-gray-500 font-medium uppercase">or</span>
+              <span className="bg-white px-3 text-xs text-gray-500 font-medium uppercase tracking-wider">or</span>
               <div className="border-t border-gray-200 w-full"></div>
             </div>
 
@@ -200,7 +200,7 @@ const Login = () => {
               type="button"
               onClick={() => googleLoginAction()}
               disabled={loading}
-              className="w-full flex items-center justify-center gap-3 border border-gray-200 bg-white hover:bg-gray-50 text-slate-700 font-semibold py-3 rounded-2xl shadow-sm transition-all active:scale-[0.98] disabled:opacity-60 cursor-pointer"
+              className="w-full flex items-center justify-center gap-3 border border-gray-200 bg-white hover:bg-gray-50 text-slate-700 font-semibold py-3 rounded-2xl shadow-sm transition-all active:scale-[0.98] disabled:opacity-60 cursor-pointer !mt-2"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
