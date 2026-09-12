@@ -197,29 +197,14 @@ public class UserServiceImpl implements UserService {
                 firstName = "Google User";
             }
 
-            Optional<User> optionalUser = userRepository.findByEmail(email);
-            User user;
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new InvalidCredentialsException("Account not found. Please register first."));
 
-            if (optionalUser.isPresent()) {
-                user = optionalUser.get();
-                if (user.getAuthProvider() == null || user.getAuthProvider() != AuthProvider.GOOGLE) {
-                    user.setAuthProvider(AuthProvider.GOOGLE);
-                }
-                user.setVerified(true);
-                userRepository.save(user);
-            } else {
-                user = User.builder()
-                        .firstName(firstName)
-                        .lastName(lastName != null ? lastName : "")
-                        .email(email)
-                        .authProvider(AuthProvider.GOOGLE)
-                        .role(User.Role.USER)
-                        .isVerified(true)
-                        .build();
-
-                userRepository.save(user);
-                subscriptionService.createFreeTrial(user);
+            if (user.getAuthProvider() == null || user.getAuthProvider() != AuthProvider.GOOGLE) {
+                user.setAuthProvider(AuthProvider.GOOGLE);
             }
+            user.setVerified(true);
+            userRepository.save(user);
 
             String token = jwtService.generateToken(user.getEmail());
 
