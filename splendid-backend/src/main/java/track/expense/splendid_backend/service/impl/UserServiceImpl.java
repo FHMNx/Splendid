@@ -1,11 +1,17 @@
 package track.expense.splendid_backend.service.impl;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import track.expense.splendid_backend.dto.*;
+import track.expense.splendid_backend.entity.AuthProvider;
 import track.expense.splendid_backend.entity.User;
 import track.expense.splendid_backend.entity.UserProfileImage;
 import track.expense.splendid_backend.exception.InvalidCredentialsException;
@@ -18,6 +24,7 @@ import track.expense.splendid_backend.service.UserService;
 import track.expense.splendid_backend.security.jwt.JwtService;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,6 +43,9 @@ public class UserServiceImpl implements UserService {
     private final CloudinaryService cloudinaryService;
 
     private final SubscriptionService subscriptionService;
+
+    @Value("${app.google.client.id}")
+    private String googleClientId;
 
     private static final String EMAIL_REGEX = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$";
     private static final String PASSWORD_REGEX = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d@$!#%*?&]{8,}$";
@@ -93,6 +103,10 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
 
+        if (user.getPassword() == null) {
+            throw new InvalidCredentialsException("Please log in using Google.");
+        }
+
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new InvalidCredentialsException("Invalid email or password");
         }
@@ -111,6 +125,80 @@ public class UserServiceImpl implements UserService {
                 .lastName(user.getLastName())
                 .role(user.getRole().name())
                 .build();
+    }
+
+    @Override
+    public AuthResponseDto googleLogin(GoogleLoginRequestDto request) {
+        if (request.getIdToken() == null || request.getIdToken().isBlank()) {
+            throw new InvalidCredentialsException("Google ID Token is required");
+        }
+
+        try {
+            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
+                    GoogleNetHttpTransport.newTrustedTransport(),
+                    GsonFactory.getDefaultInstance())
+                    .setAudience(Collections.singletonList(googleClientId))
+                    .build();
+
+            GoogleIdToken idToken = verifier.verify(request.getIdToken());
+            if (idToken == null) {
+                throw new InvalidCredentialsException("Invalid Google token");
+            }
+
+            GoogleIdToken.Payload payload = idToken.getPayload();
+            String email = payload.getEmail();
+            String firstName = (String) payload.get("given_name");
+            String lastName = (String) payload.get("family_name");
+
+            if (firstName == null || firstName.isBlank()) {
+                firstName = (String) payload.get("name");
+                if (firstName == null || firstName.isBlank()) {
+                    firstName = "Google User";
+                }
+            }
+
+            Optional<User> optionalUser = userRepository.findByEmail(email);
+            User user;
+
+            if (optionalUser.isPresent()) {
+                user = optionalUser.get();
+                if (user.getAuthProvider() == null || user.getAuthProvider() != AuthProvider.GOOGLE) {
+                    user.setAuthProvider(AuthProvider.GOOGLE);
+                }
+                user.setVerified(true);
+                userRepository.save(user);
+            } else {
+                user = User.builder()
+                        .firstName(firstName)
+                        .lastName(lastName != null ? lastName : "")
+                        .email(email)
+                        .authProvider(AuthProvider.GOOGLE)
+                        .role(User.Role.USER)
+                        .isVerified(true)
+                        .build();
+
+                userRepository.save(user);
+                subscriptionService.createFreeTrial(user);
+            }
+
+            String token = jwtService.generateToken(user.getEmail());
+
+            return AuthResponseDto.builder()
+                    .id(user.getId())
+                    .token(token)
+                    .email(user.getEmail())
+                    .firstName(user.getFirstName())
+                    .lastName(user.getLastName())
+                    .role(user.getRole().name())
+                    .build();
+
+        } catch (InvalidCredentialsException e) {
+            throw e;
+        } catch (Exception e) {
+            System.out.println("Google Auth Error: " + e.getMessage());
+            e.printStackTrace();
+            throw new InvalidCredentialsException("Google authentication failed: " + e.getMessage());
+        }
     }
 
     @Override

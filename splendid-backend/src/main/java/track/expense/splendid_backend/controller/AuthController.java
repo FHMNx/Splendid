@@ -41,6 +41,18 @@ public class AuthController {
         );
     }
 
+    @Operation(summary = "Google OAuth2 Login", description = "Authenticates or registers user using Google ID token")
+    @PostMapping("/google")
+    public ResponseEntity<ApiResponse<AuthResponseDto>> googleLogin(@RequestBody GoogleLoginRequestDto request) {
+        AuthResponseDto response = userService.googleLogin(request);
+        return ResponseEntity.ok(ApiResponse.<AuthResponseDto>builder()
+                .success(true)
+                .message("Login successful")
+                .data(response)
+                .build()
+        );
+    }
+
     @Operation(summary = "Verify email", description = "Verifies email using token from verification email")
     @GetMapping("/verify")
     public ResponseEntity<ApiResponse<String>> verifyEmail(@RequestParam String token) {
