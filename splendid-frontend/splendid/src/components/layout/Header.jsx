@@ -1,21 +1,22 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Bell,
   ChevronDown,
   Menu,
   MessageSquare,
   User,
   LogOut,
+  Sparkles,
 } from "lucide-react";
 import splendidLogo from "../../assets/splendid.png";
 import { useAuth } from "../../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { useSubscription } from "../../context/SubscriptionContext";
+import NotificationDropdown from "../notifications/NotificationDropdown";
 
-//Subscription Countdown 
+// Subscription Countdown 
 const SubscriptionCountdown = () => {
-  const { subscription, plan, isActive } = useSubscription();
+  const { subscription, isActive } = useSubscription();
   const [timeLeft, setTimeLeft] = useState(null);
 
   useEffect(() => {
@@ -49,8 +50,11 @@ const SubscriptionCountdown = () => {
   const daysLeft = subscription.daysRemaining ?? 0;
 
   const colorClass =
-    daysLeft <= 1 ? "text-red-500" :
-      daysLeft <= 3 ? "text-amber-500" : "text-emerald-600";
+    daysLeft <= 1
+      ? "text-red-500"
+      : daysLeft <= 3
+      ? "text-amber-500"
+      : "text-emerald-600";
 
   const pad = (n) => String(n).padStart(2, "0");
 
@@ -66,7 +70,7 @@ const SubscriptionCountdown = () => {
   );
 };
 
-//Header
+// Header
 const Header = ({
   title = "Splendid",
   onToggleSidebar,
@@ -105,7 +109,6 @@ const Header = ({
   return (
     <header className="sticky top-0 z-20 w-full border-b border-emerald-100 bg-white shadow-sm">
       <div className="flex items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
-
         {/* Left — logo + title */}
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <button
@@ -129,25 +132,23 @@ const Header = ({
           </div>
         </div>
 
-        {/*subscription countdown */}
+        {/* Subscription countdown */}
         <div className="flex flex-1 items-center justify-center">
           <SubscriptionCountdown />
         </div>
 
+        {/* Action icons & Profile */}
         <div className="flex flex-1 items-center justify-end gap-1.5 sm:gap-2">
-          <button
-            type="button"
-            className="relative inline-flex h-10 w-10 items-center justify-center rounded-full text-zinc-600 transition-all duration-200 hover:bg-emerald-50 hover:text-emerald-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
-            aria-label="Notifications"
-          >
-            <Bell size={18} />
-            <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-red-500" />
-          </button>
+          {/* Notification Dropdown Component */}
+          <NotificationDropdown />
 
+          {/* Quick Help & Support Ticket link */}
           <button
             type="button"
+            onClick={() => navigate("/dashboard/support")}
             className="inline-flex h-10 w-10 items-center justify-center rounded-full text-zinc-600 transition-all duration-200 hover:bg-emerald-50 hover:text-emerald-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
-            aria-label="Messages"
+            aria-label="Help & Support"
+            title="Help & Support"
           >
             <MessageSquare size={18} />
           </button>
@@ -163,7 +164,12 @@ const Header = ({
               aria-haspopup="menu"
             >
               <img
-                src={userAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=d1fae5&color=065f46&size=80`}
+                src={
+                  userAvatar ||
+                  `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                    userName
+                  )}&background=d1fae5&color=065f46&size=80`
+                }
                 alt="User profile"
                 className="h-8 w-8 rounded-full border border-emerald-100 object-cover"
               />
@@ -172,35 +178,40 @@ const Header = ({
               </span>
               <ChevronDown
                 size={16}
-                className={`hidden text-zinc-500 transition-transform duration-200 sm:block ${isProfileOpen ? "rotate-180" : ""
-                  }`}
+                className={`hidden text-zinc-500 transition-transform duration-200 sm:block ${
+                  isProfileOpen ? "rotate-180" : ""
+                }`}
               />
             </button>
 
             {/* Dropdown */}
             <div
-              className={`absolute right-0 mt-2 w-48 origin-top-right rounded-lg border border-emerald-100 bg-white p-1.5 shadow-lg transition-all duration-200 ${isProfileOpen
+              className={`absolute right-0 mt-2 w-48 origin-top-right rounded-lg border border-emerald-100 bg-white p-1.5 shadow-lg transition-all duration-200 ${
+                isProfileOpen
                   ? "pointer-events-auto translate-y-0 opacity-100"
                   : "pointer-events-none -translate-y-1 opacity-0"
-                }`}
+              }`}
               role="menu"
             >
-
-              <a href="/dashboard/profile"
+              <Link
+                to="/dashboard/profile"
+                onClick={() => setIsProfileOpen(false)}
                 className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-zinc-700 transition-colors hover:bg-emerald-50 hover:text-emerald-900"
                 role="menuitem"
               >
                 <User size={15} />
                 <span>Profile</span>
-              </a>
+              </Link>
 
-              <a href="/packages"
+              <Link
+                to="/packages"
+                onClick={() => setIsProfileOpen(false)}
                 className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-zinc-700 transition-colors hover:bg-emerald-50 hover:text-emerald-900"
                 role="menuitem"
               >
-                <Bell size={15} />
+                <Sparkles size={15} className="text-emerald-700" />
                 <span>Upgrade Plan</span>
-              </a>
+              </Link>
               <div className="my-1 border-t border-zinc-100" />
               <button
                 type="button"
@@ -214,7 +225,6 @@ const Header = ({
             </div>
           </div>
         </div>
-
       </div>
     </header>
   );

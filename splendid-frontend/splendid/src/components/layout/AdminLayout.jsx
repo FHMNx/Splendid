@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Users, ArrowLeftRight, LogOut, Menu, X, Shield, ChevronDown, User, Crown, TrendingUp, Settings } from "lucide-react";
+import { LayoutDashboard, Users, ArrowLeftRight, LogOut, Menu, X, Shield, ChevronDown, User, Crown, TrendingUp, Settings, LifeBuoy, Megaphone } from "lucide-react";
 import splendidLogo from "../../assets/splendid.png";
 import { Outlet } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -13,6 +13,8 @@ const NAV_ITEMS = [
     { to: "/admin/users", label: "Users", icon: Users },
     { to: "/admin/subscriptions", label: "Subscriptions", icon: Crown },
     { to: "/admin/transactions", label: "Transactions", icon: ArrowLeftRight },
+    { to: "/admin/tickets", label: "Support Tickets", icon: LifeBuoy },
+    { to: "/admin/broadcasts", label: "Broadcasts", icon: Megaphone },
     { to: "/admin/profits", label: "Profits", icon: TrendingUp },
     { to: "/admin/settings", label: "Settings", icon: Settings },
 ];
