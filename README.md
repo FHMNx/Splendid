@@ -61,6 +61,7 @@
 *   **Containerization:** Docker & Docker Compose
 *   **CI/CD:** GitHub Actions (Automated build, push to DockerHub, and SSH deployment to VPS)
 *   **Hosting:** Contabo VPS managed via aaPanel (NGINX Reverse Proxy)
+*   **Test the Subscription Flow: The app is currently in Sandbox mode! Create an account and upgrade using the PayHere Test Visa: 4916217501611292 (Any future expiry & CVV) to see the instant webhook activation in action.
 
 ---
 
