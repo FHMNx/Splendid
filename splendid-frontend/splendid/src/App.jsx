@@ -30,6 +30,11 @@ import AdminTransactions from "./pages/admin/AdminTransactions";
 import AdminSubscriptions from "./pages/admin/AdminSubscriptions";
 import AdminProfits from "./pages/admin/AdminProfits";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminTickets from "./pages/admin/AdminTickets";
+import AdminTicketDetails from "./pages/admin/AdminTicketDetails";
+import AdminBroadcasts from "./pages/admin/AdminBroadcasts";
+import SupportTickets from "./pages/SupportTickets";
+import TicketThreadView from "./pages/TicketThreadView";
 
 
 const App = () => {
@@ -65,6 +70,8 @@ const App = () => {
               <Route path="profile" element={<Profile />} />
               <Route path="budgets" element={<Budget />} />
               <Route path="budget" element={<Navigate to="/dashboard/budgets" replace />} />
+              <Route path="support" element={<SupportTickets />} />
+              <Route path="support/:id" element={<TicketThreadView />} />
             </Route>
           </Route>
         </Route>
@@ -76,6 +83,9 @@ const App = () => {
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/transactions" element={<AdminTransactions />} />
             <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
+            <Route path="/admin/tickets" element={<AdminTickets />} />
+            <Route path="/admin/tickets/:id" element={<AdminTicketDetails />} />
+            <Route path="/admin/broadcasts" element={<AdminBroadcasts />} />
             <Route path="/admin/profits" element={<AdminProfits />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
           </Route>

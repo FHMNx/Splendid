@@ -95,6 +95,75 @@ public class EmailServiceImpl implements EmailService {
         sendHtmlEmail(adminEmail, "[Splendid Support] Inquiry from " + safeName + ": " + subject, html);
     }
 
+    @Override
+    public void sendTicketCreatedEmail(String toEmail, String userName, String ticketNumber, String subject) {
+        String safeName = (userName != null && !userName.isBlank()) ? userName : "there";
+        String ticketUrl = frontendUrl + "/dashboard/support";
+        String html = "<div style=\"font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;\">"
+                + "<div style=\"text-align: center; margin-bottom: 20px;\">"
+                + "<img src=\"" + LOGO_URL + "\" alt=\"Splendid Logo\" style=\"height: 50px;\" />"
+                + "<h2 style=\"color: #059669; margin-top: 10px;\">Support Ticket Received</h2>"
+                + "</div>"
+                + "<p>Hi " + safeName + ",</p>"
+                + "<p>Your support ticket <strong>#" + ticketNumber + "</strong> has been received and logged into our system.</p>"
+                + "<div style=\"background-color: #f9fafb; padding: 15px; border-radius: 6px; margin: 20px 0; border: 1px solid #e5e7eb;\">"
+                + "<p style=\"margin: 0 0 8px 0; font-size: 14px;\"><strong>Ticket ID:</strong> #" + ticketNumber + "</p>"
+                + "<p style=\"margin: 0; font-size: 14px;\"><strong>Subject:</strong> " + subject + "</p>"
+                + "</div>"
+                + "<p>Our support team is reviewing your request and will post an update shortly.</p>"
+                + "<div style=\"text-align: center; margin: 25px 0;\">"
+                + "<a href=\"" + ticketUrl + "\" style=\"background-color: #059669; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;\">View Ticket in Dashboard</a>"
+                + "</div>"
+                + "<p>Best regards,<br/><strong>The Splendid Support Team</strong></p>"
+                + "</div>";
+
+        sendHtmlEmail(toEmail, "[Ticket #" + ticketNumber + "] Support Ticket Created: " + subject, html);
+    }
+
+    @Override
+    public void sendTicketReplyEmail(String toEmail, String userName, String ticketNumber, String replyPreview) {
+        String safeName = (userName != null && !userName.isBlank()) ? userName : "there";
+        String ticketUrl = frontendUrl + "/dashboard/support";
+        String html = "<div style=\"font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;\">"
+                + "<div style=\"text-align: center; margin-bottom: 20px;\">"
+                + "<img src=\"" + LOGO_URL + "\" alt=\"Splendid Logo\" style=\"height: 50px;\" />"
+                + "<h2 style=\"color: #059669; margin-top: 10px;\">New Reply to Your Ticket</h2>"
+                + "</div>"
+                + "<p>Hi " + safeName + ",</p>"
+                + "<p>A support agent has replied to your ticket <strong>#" + ticketNumber + "</strong>:</p>"
+                + "<div style=\"background-color: #f0fdf4; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #059669;\">"
+                + "<p style=\"white-space: pre-wrap; margin: 0; color: #166534; font-size: 14px;\">" + replyPreview + "</p>"
+                + "</div>"
+                + "<div style=\"text-align: center; margin: 25px 0;\">"
+                + "<a href=\"" + ticketUrl + "\" style=\"background-color: #059669; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;\">View & Reply in Dashboard</a>"
+                + "</div>"
+                + "<p>Best regards,<br/><strong>The Splendid Support Team</strong></p>"
+                + "</div>";
+
+        sendHtmlEmail(toEmail, "[Ticket #" + ticketNumber + "] New Reply from Support Team", html);
+    }
+
+    @Override
+    public void sendAdminTicketAlertEmail(String ticketNumber, String subject) {
+        String adminUrl = frontendUrl + "/admin/tickets";
+        String html = "<div style=\"font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;\">"
+                + "<div style=\"text-align: center; margin-bottom: 20px;\">"
+                + "<img src=\"" + LOGO_URL + "\" alt=\"Splendid Logo\" style=\"height: 50px;\" />"
+                + "<h2 style=\"color: #059669; margin-top: 10px;\">New Ticket Alert</h2>"
+                + "</div>"
+                + "<p>A user has opened a new support ticket:</p>"
+                + "<table style=\"width: 100%; border-collapse: collapse; margin-bottom: 20px;\">"
+                + "<tr><td style=\"padding: 8px 0; font-weight: bold; width: 130px; color: #374151;\">Ticket Number:</td><td>#" + ticketNumber + "</td></tr>"
+                + "<tr><td style=\"padding: 8px 0; font-weight: bold; color: #374151;\">Subject:</td><td>" + subject + "</td></tr>"
+                + "</table>"
+                + "<div style=\"text-align: center; margin: 25px 0;\">"
+                + "<a href=\"" + adminUrl + "\" style=\"background-color: #059669; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;\">Open Admin Ticket Desk</a>"
+                + "</div>"
+                + "</div>";
+
+        sendHtmlEmail(adminEmail, "[Admin Alert] New Ticket #" + ticketNumber + ": " + subject, html);
+    }
+
     private void sendHtmlEmail(String to, String subject, String htmlContent) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
