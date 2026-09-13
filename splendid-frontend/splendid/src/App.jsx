@@ -14,7 +14,6 @@ import Transactions from "./pages/Transactions";
 import Profile from "./pages/Profile";
 import Budget from "./pages/Budget";
 import TransactionForm from "./pages/TransactionForm";
-import EditTransactionModal from "./components/transactions/EditTransactionModal";
 import { Toaster } from "react-hot-toast";
 import VerifyEmail from "./pages/VerifyEmail";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -64,7 +63,6 @@ const App = () => {
               <Route path="transactions">
                 <Route index element={<Transactions />} />
                 <Route path="add" element={<TransactionForm />} />
-                <Route path="edit" element={<EditTransactionModal />} />
               </Route>
 
               <Route path="profile" element={<Profile />} />

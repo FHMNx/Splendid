@@ -32,30 +32,25 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public AdminStatsDto getStats() {
-        List<User> allUsers = userRepository.findAll();
-        List<Transaction> allTransactions = transactionRepository.findAll();
+        long totalUsers = userRepository.count();
+        long verifiedUsers = userRepository.countByIsVerified(true);
+        long unverifiedUsers = totalUsers - verifiedUsers;
 
-        long verifiedUsers = allUsers.stream().filter(User::isVerified).count();
-
-        BigDecimal totalIncome = allTransactions.stream()
-                .filter(t -> t.getType() == Transaction.TransactionType.INCOME)
-                .map(Transaction::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        BigDecimal totalExpense = allTransactions.stream()
-                .filter(t -> t.getType() == Transaction.TransactionType.EXPENSE)
-                .map(Transaction::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        long totalTransactions = transactionRepository.count();
+        BigDecimal totalIncome = nullSafe(transactionRepository.sumAmountByType(Transaction.TransactionType.INCOME));
+        BigDecimal totalExpense = nullSafe(transactionRepository.sumAmountByType(Transaction.TransactionType.EXPENSE));
+        BigDecimal platformNetBalance = totalIncome.subtract(totalExpense);
+        long totalBudgets = budgetRepository.count();
 
         return AdminStatsDto.builder()
-                .totalUsers(allUsers.size())
+                .totalUsers(totalUsers)
                 .verifiedUsers(verifiedUsers)
-                .unverifiedUsers(allUsers.size() - verifiedUsers)
-                .totalTransactions(allTransactions.size())
+                .unverifiedUsers(unverifiedUsers)
+                .totalTransactions(totalTransactions)
                 .platformTotalIncome(totalIncome)
                 .platformTotalExpense(totalExpense)
-                .platformNetBalance(totalIncome.subtract(totalExpense))
-                .totalBudgets(budgetRepository.count())
+                .platformNetBalance(platformNetBalance)
+                .totalBudgets(totalBudgets)
                 .build();
     }
 
