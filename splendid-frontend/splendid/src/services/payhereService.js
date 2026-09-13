@@ -18,7 +18,7 @@ export const launchPayHereCheckout = async (user, planKey, onSuccess, onDismisse
   const orderId  = `${user.id}_${planKey}_${Date.now()}`;
 
   try {
-    //get hash from backend
+    // get hash from backend
     const res = await api.post("/payments/payhere/hash", {
       orderId,
       amount,
@@ -27,7 +27,7 @@ export const launchPayHereCheckout = async (user, planKey, onSuccess, onDismisse
 
     const { hash, merchantId } = res.data.data;
 
-    //build PayHere payment object
+    // build PayHere payment object
     const payment = {
       sandbox:     true,
       merchant_id: merchantId,
@@ -53,28 +53,23 @@ export const launchPayHereCheckout = async (user, planKey, onSuccess, onDismisse
       custom_2:    planKey,
     };
 
-    //set callbacks
+    // set callbacks
     window.payhere.onCompleted = (orderId) => {
-      console.log("Payment completed:", orderId);
       if (onSuccess) onSuccess(orderId);
     };
 
     window.payhere.onDismissed = () => {
-      console.log("Payment dismissed");
       if (onDismissed) onDismissed();
     };
 
     window.payhere.onError = (error) => {
-      console.error("PayHere error:", error);
       if (onError) onError(error);
     };
 
-    //launch popup
-    console.log("PayHere payment object:", JSON.stringify(payment, null, 2));
+    // launch popup
     window.payhere.startPayment(payment);
 
   } catch (error) {
-    console.error("Failed to launch PayHere:", error);
     if (onError) onError(error);
   }
 };
