@@ -22,6 +22,9 @@ services:
     environment:
       APP_FRONTEND_URL: "https://splendid.moonfleet.lk"
       APP_LOGO_URL: "https://res.cloudinary.com/dmht8yyea/image/upload/q_auto/f_auto/v1777136456/splendid_hqpges.png"
+      
+      # The AI Key!
+      GROQ_API_KEY: ${GROQ_API_KEY}
 
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/${DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
@@ -40,10 +43,10 @@ services:
     image: fhmnx/splendid-frontend:latest
     container_name: splendid-frontend-app
     ports:
-      - "3000:80" # This maps your browser's localhost:3000 to the NGINX port 80
+      - "3000:80" # Maps browser localhost:3000 to NGINX port 80
     depends_on:
       - backend
 
-# This volume ensures your database data isn't wiped out when the container stops
+# Ensures database data isn't wiped out when container stops
 volumes:
   db_data:
